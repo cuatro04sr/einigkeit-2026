@@ -11,6 +11,7 @@ import {
   Clock,
   Handshake,
 } from "lucide-react";
+import Link from "next/link";
 
 const STEPS = [
   {
@@ -114,11 +115,16 @@ export function StepCardsGrid() {
 
       <div className="shrink-0 flex items-center justify-center w-full lg:w-auto">
         <Button
+          asChild
           size="lg"
           className="group flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-6 rounded-xl shadow-md transition-all hover:shadow-lg w-full lg:w-auto min-h-[52px]"
         >
-          <span className="whitespace-nowrap text-base">Comenzar a jugar</span>
-          <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+          <Link href="/login">
+            <span className="whitespace-nowrap text-base">
+              Comenzar a jugar
+            </span>
+            <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
+          </Link>
         </Button>
       </div>
     </div>

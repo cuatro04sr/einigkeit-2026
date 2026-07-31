@@ -14,7 +14,7 @@ interface StepCardProps {
   number: number;
   title: string;
   description: string;
-  extraText: ReactNode; // Acepta texto enriquecido con JSX (ej: color rojo)
+  extraText: ReactNode;
   icon: LucideIcon;
   colors: {
     numberBg: string;
@@ -35,8 +35,7 @@ export function StepCard({
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
-      {/* h-[110px] y overflow-hidden aseguran que la altura nunca cambie al desplegar */}
-      <Card className="shadow-sm transition-shadow hover:shadow-md border-border h-[110px] overflow-hidden flex items-center">
+      <Card className="shadow-sm transition-all duration-300 hover:shadow-md border-border h-[110px] overflow-hidden flex items-center">
         <CardContent className="flex items-center justify-between gap-3 w-full">
           {/* Lado Izquierdo */}
           <div className="flex flex-col gap-2 min-w-0 flex-1">
@@ -64,33 +63,41 @@ export function StepCard({
           </div>
 
           {/* Lado Derecho */}
-          <div className="flex items-center pl-1 shrink-0">
-            {!isOpen ? (
-              <CollapsibleTrigger asChild>
-                <button
-                  type="button"
-                  className="p-1.5 text-foreground transition-transform hover:translate-x-1 focus:outline-none"
-                  aria-label="Ver detalles"
-                >
-                  <ChevronRight className="h-5 w-5 stroke-[2.5]" />
-                </button>
-              </CollapsibleTrigger>
-            ) : (
-              <CollapsibleContent
-                forceMount
-                className="flex items-center gap-3 data-[state=closed]:hidden data-[state=open]:animate-in data-[state=open]:fade-in-50 duration-200"
-              >
+          <div className="flex items-center pl-1 shrink-0 gap-2">
+            {/* Contenido Extra con Animaciones de Apertura y Cierre */}
+            <CollapsibleContent
+              className="overflow-hidden transition-all duration-300 ease-in-out
+                         data-[state=open]:animate-in data-[state=closed]:animate-out
+                         data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0
+                         data-[state=closed]:slide-out-to-right-2 data-[state=open]:slide-in-from-right-2"
+            >
+              <div className="flex items-center gap-3">
                 <Separator
                   orientation="vertical"
-                  className="h-10 w-[1.5px] bg-foreground/80"
+                  className="w-[1.5px] bg-foreground/80"
                 />
                 <CollapsibleTrigger asChild>
                   <div className="max-w-[120px] text-[11px] font-medium leading-snug text-foreground cursor-pointer">
                     {extraText}
                   </div>
                 </CollapsibleTrigger>
-              </CollapsibleContent>
-            )}
+              </div>
+            </CollapsibleContent>
+
+            {/* Botón Trigger con Flecha que Rota Suavemente */}
+            <CollapsibleTrigger asChild>
+              <button
+                type="button"
+                className="p-1.5 text-foreground transition-transform duration-300 ease-in-out hover:opacity-80 focus:outline-none"
+                aria-label="Ver detalles"
+              >
+                <ChevronRight
+                  className={`h-5 w-5 stroke-[2.5] transition-transform duration-300 ${
+                    isOpen ? "rotate-90" : "rotate-0"
+                  }`}
+                />
+              </button>
+            </CollapsibleTrigger>
           </div>
         </CardContent>
       </Card>
