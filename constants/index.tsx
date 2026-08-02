@@ -1,9 +1,4 @@
-"use client";
-
-import { StepCard } from "./step-card";
-import { Button } from "@/components/ui/button";
 import {
-  ArrowRight,
   User,
   ListOrdered,
   UserCheck,
@@ -11,9 +6,9 @@ import {
   Clock,
   Handshake,
 } from "lucide-react";
-import Link from "next/link";
+import { StepItem } from "@/types";
 
-const STEPS = [
+export const HERO_CARDS_STEPS: StepItem[] = [
   {
     id: 1,
     title: "Regístrate",
@@ -82,9 +77,9 @@ const STEPS = [
     extra: (
       <span>
         Completa las 8 misiones y prepárate para el encuentro del{" "}
-        <span className="text-red-500 font-semibold block">
+        <strong className="text-red-500 font-semibold block">
           Sábado 3 de octubre de 2026
-        </span>
+        </strong>
       </span>
     ),
     icon: Handshake,
@@ -96,37 +91,7 @@ const STEPS = [
   },
 ];
 
-export function StepCardsGrid() {
-  return (
-    <div className="w-full my-6 flex flex-col lg:flex-row items-center lg:items-end gap-4 lg:gap-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 flex-1 w-full">
-        {STEPS.map((step) => (
-          <StepCard
-            key={step.id}
-            number={step.id}
-            title={step.title}
-            description={step.desc}
-            extraText={step.extra}
-            icon={step.icon}
-            colors={step.color}
-          />
-        ))}
-      </div>
-
-      <div className="shrink-0 flex items-center justify-center w-full lg:w-auto">
-        <Button
-          asChild
-          size="lg"
-          className="group flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold px-6 py-6 rounded-xl shadow-md transition-all hover:shadow-lg w-full lg:w-auto min-h-[52px]"
-        >
-          <Link href="/login">
-            <span className="whitespace-nowrap text-base">
-              Comenzar a jugar
-            </span>
-            <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-          </Link>
-        </Button>
-      </div>
-    </div>
-  );
-}
+export const NAVBAR_LOGOS = [
+  { src: "/asodeca-logo.png", alt: "Asodeca Logo" },
+  { src: "/einigkeit-logo.png", alt: "Einigkeit Logo" },
+];
