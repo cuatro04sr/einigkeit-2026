@@ -1,6 +1,6 @@
 import { User } from "@supabase/supabase-js";
 import { LucideIcon } from "lucide-react";
-import React from "react";
+import React, { ReactNode } from "react";
 
 export interface StepColorConfig {
   numberBg: string;
@@ -86,6 +86,26 @@ export interface VerifyEmailDialogProps {
   email: string;
 }
 
+export interface QuizResultDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  correctAnswers: number;
+  totalQuestions: number;
+  earnedPoints: number;
+  onRetry: () => void;
+  onContinue: () => void;
+  submitting?: boolean;
+}
+
+export interface MascotDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  title: string;
+  imageSrc: string;
+  imageAlt?: string;
+  children: ReactNode;
+}
+
 export interface Profile {
   id: string;
   first_name: string;
@@ -118,9 +138,47 @@ export interface Mission {
 
 export interface MissionCardProps {
   mission: Mission;
+  isCompleted?: boolean;
 }
 
 export interface MissionCardsGridProps {
   missions: Mission[];
+  completedMissionIds: Set<string>;
   isLoading: boolean;
 }
+
+export interface Option {
+  id: string;
+  label: string;
+  icon?: string;
+  color?: string;
+}
+
+export interface Question {
+  id: string;
+  mission_id: string;
+  question_text: string;
+  question_type: string;
+  options: Option[];
+  correct_option_id: string;
+  order_index: number;
+}
+
+export interface PageProps {
+  params: Promise<{ id: string }>;
+}
+
+export interface QuizViewProps {
+  mission: Mission;
+  questions: Question[];
+  surveyQuestion: Question | undefined;
+}
+
+export type UserResponsePayload = {
+  user_id: string;
+  mission_id: string;
+  question_id: string;
+  selected_option: string;
+  is_correct: boolean | null;
+  text_answer?: string | null;
+};

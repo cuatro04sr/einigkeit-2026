@@ -4,6 +4,7 @@ import { MissionCardsGridProps } from "@/types";
 
 export function MissionsCardsGrid({
   missions,
+  completedMissionIds,
   isLoading,
 }: MissionCardsGridProps) {
   return (
@@ -13,7 +14,11 @@ export function MissionsCardsGrid({
             <CardSkeleton key={index} />
           ))
         : missions.map((mission) => (
-            <MissionCard key={mission.id} mission={mission} />
+            <MissionCard
+              key={mission.id}
+              mission={mission}
+              isCompleted={completedMissionIds.has(mission.id)}
+            />
           ))}
     </div>
   );

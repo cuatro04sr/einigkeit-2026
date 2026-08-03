@@ -1,20 +1,22 @@
 "use client";
 
 import { MissionsCardsGrid } from "@/components/landing/mission-cards-grid";
+import { MascotCallout } from "@/components/shared/mascot-callout";
 import { useAuthStore } from "@/store/useAuthStore";
 import { createClient } from "@/lib/client";
 import { Mission } from "@/types";
 
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
-import { MascotCallout } from "../shared/mascot-callout";
 
 const supabase = createClient();
 
 export function AuthenticatedHero() {
   const { user } = useAuthStore();
   const [missions, setMissions] = useState<Mission[]>([]);
-  const [completedCount, setCompletedCount] = useState<number>(0);
+  const [completedMissionIds, setCompletedMissionIds] = useState<Set<string>>(
+    new Set(),
+  );
   const [loading, setLoading] = useState<boolean>(true);
   useEffect(() => {
     const fetchData = async () => {
@@ -38,7 +40,7 @@ export function AuthenticatedHero() {
           const uniqueMissions = new Set(
             responsesRes.data.map((r) => r.mission_id),
           );
-          setCompletedCount(uniqueMissions.size);
+          setCompletedMissionIds(uniqueMissions);
         }
       } catch (error: unknown) {
         const message =
@@ -51,6 +53,7 @@ export function AuthenticatedHero() {
     fetchData();
   }, [user]);
   const totalMissions = missions.length;
+  const completedCount = completedMissionIds.size;
   const percentage = useMemo(() => {
     if (totalMissions === 0) return 0;
     return Math.round((completedCount / totalMissions) * 100);
@@ -99,7 +102,11 @@ export function AuthenticatedHero() {
         </header>
         <div className="relative w-full flex flex-col lg:flex-row items-center lg:items-start gap-4">
           <div className="w-full flex-1 min-w-0">
-            <MissionsCardsGrid missions={missions} isLoading={loading} />
+            <MissionsCardsGrid
+              missions={missions}
+              completedMissionIds={completedMissionIds}
+              isLoading={loading}
+            />
           </div>
           <div className="w-full lg:w-fit h-full flex justify-center lg:justify-end lg:sticky lg:top-6">
             <MascotCallout

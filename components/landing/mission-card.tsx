@@ -14,14 +14,16 @@ import {
   CardAction,
 } from "@/components/ui/card";
 
-import { Lock, ArrowRight } from "lucide-react";
+import { Lock, ArrowRight, Check } from "lucide-react";
 import Link from "next/link";
 
-export function MissionCard({ mission }: MissionCardProps) {
+export function MissionCard({
+  mission,
+  isCompleted = false,
+}: MissionCardProps) {
   const now = new Date();
   const unlockDate = new Date(mission.unlock_date);
   const isUnlocked = mission.is_active && now >= unlockDate;
-
   const formatUnlockDate = (date: Date) => {
     return new Intl.DateTimeFormat("es-ES", {
       weekday: "long",
@@ -29,15 +31,16 @@ export function MissionCard({ mission }: MissionCardProps) {
       month: "long",
     }).format(date);
   };
-
   return (
     <Card
       size="sm"
       className={cn(
         "relative h-full !gap-0 flex flex-col justify-between rounded-2xl transition-all duration-200 border shadow-sm overflow-hidden",
-        isUnlocked
-          ? "border-amber-400 shadow-amber-400/10 bg-white"
-          : "border-slate-200/80 bg-slate-50/50 opacity-90",
+        isCompleted
+          ? "border-emerald-400/80 bg-emerald-50/20 shadow-emerald-400/5"
+          : isUnlocked
+            ? "border-amber-400 shadow-amber-400/10 bg-white"
+            : "border-slate-200/80 bg-slate-50/50 opacity-90",
       )}
     >
       <CardHeader className="pb-1">
@@ -45,15 +48,29 @@ export function MissionCard({ mission }: MissionCardProps) {
           <span
             className={cn(
               "flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold shadow-inner",
-              isUnlocked ? "bg-red-600 text-white" : "bg-slate-400 text-white",
+              isCompleted
+                ? "bg-emerald-600 text-white"
+                : isUnlocked
+                  ? "bg-red-600 text-white"
+                  : "bg-slate-400 text-white",
             )}
           >
-            {mission.week_number}
+            {isCompleted ? (
+              <Check className="w-4 h-4 stroke-[3]" />
+            ) : (
+              mission.week_number
+            )}
           </span>
         </CardTitle>
-
         <CardAction>
-          {isUnlocked ? (
+          {isCompleted ? (
+            <Badge
+              variant="outline"
+              className="text-[10px] font-bold text-emerald-600 bg-emerald-50 border-emerald-300 rounded-full tracking-wider uppercase px-2.5 py-0.5"
+            >
+              Completada
+            </Badge>
+          ) : isUnlocked ? (
             <Badge
               variant="outline"
               className="text-[10px] font-bold text-amber-500 bg-amber-50 border-amber-300 rounded-full tracking-wider uppercase px-2.5 py-0.5"
@@ -64,22 +81,24 @@ export function MissionCard({ mission }: MissionCardProps) {
             <Lock className="w-5 h-5 text-slate-400" />
           )}
         </CardAction>
-
         <CardDescription
           className={cn(
             "text-xs font-extrabold tracking-wider uppercase pt-1",
-            isUnlocked ? "text-red-600" : "text-slate-500",
+            isCompleted
+              ? "text-emerald-600"
+              : isUnlocked
+                ? "text-red-600"
+                : "text-slate-500",
           )}
         >
           MISIÓN {mission.week_number}
         </CardDescription>
       </CardHeader>
-
       <CardContent className="py-0 flex flex-col gap-0.5">
         <h3
           className={cn(
             "text-base sm:text-lg font-bold leading-tight tracking-tight",
-            isUnlocked ? "text-slate-950" : "text-slate-500",
+            isUnlocked || isCompleted ? "text-slate-950" : "text-slate-500",
           )}
         >
           {mission.title}
@@ -88,9 +107,18 @@ export function MissionCard({ mission }: MissionCardProps) {
           {mission.subtitle}
         </p>
       </CardContent>
-
       <CardFooter className="pt-4 pb-4 border-none bg-transparent">
-        {isUnlocked ? (
+        {isCompleted ? (
+          <Button
+            disabled
+            variant="outline"
+            size="lg"
+            className="w-full !h-10 border text-emerald-600 bg-emerald-50 border-emerald-300 rounded-full text-xs font-bold px-5 flex items-center justify-between gap-2 shadow-none cursor-not-allowed !opacity-100"
+          >
+            <span className="truncate">Completada</span>
+            <Check className="w-5 h-5 text-emerald-500 shrink-0 stroke-[2.5]" />
+          </Button>
+        ) : isUnlocked ? (
           <Button
             asChild
             variant="outline"
