@@ -1,50 +1,12 @@
 "use client";
 
 import { MascotCallout } from "@/components/shared/mascot-callout";
-import { useAuthStore } from "@/store/useAuthStore";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/lib/client";
 
-import { ArrowRight, Loader2 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export default function Welcome() {
-  const supabase = createClient();
-  const { setUser, setProfile } = useAuthStore();
-  const [loading, setLoading] = useState(true);
-  useEffect(() => {
-    const syncUser = async () => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      if (session?.user) {
-        setUser(session.user);
-        const { data } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", session.user.id)
-          .single();
-        if (data) setProfile(data);
-      }
-      setLoading(false);
-    };
-    syncUser();
-    const { data: auth } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (event === "SIGNED_IN" && session?.user) {
-          setUser(session.user);
-          const { data } = await supabase
-            .from("profiles")
-            .select("*")
-            .eq("id", session.user.id)
-            .single();
-          if (data) setProfile(data);
-        }
-      },
-    );
-    return () => auth.subscription.unsubscribe();
-  }, [supabase, setUser, setProfile]);
   return (
     <div className="w-full max-w-4xl flex flex-col lg:flex-row items-center justify-between gap-8 lg:gap-12">
       <div className="flex-1 flex flex-col items-center text-center space-y-6 w-full z-10">
@@ -56,19 +18,12 @@ export default function Welcome() {
           <span className="text-blue-600">La Misión 1</span> te espera.
         </p>
         <div className="w-full pt-2">
-          {loading ? (
-            <div className="flex items-center justify-center gap-2 text-slate-500 py-3">
-              <Loader2 className="w-5 h-5 animate-spin text-red-600" />
-              <span className="text-sm font-medium">Cargando...</span>
-            </div>
-          ) : (
-            <Link href="/">
-              <Button className="relative w-full h-12 bg-red-600 hover:bg-red-700 text-white font-bold text-lg rounded-xl transition duration-300 group">
-                Comenzar juego
-                <ArrowRight className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </Link>
-          )}
+          <Link href="/">
+            <Button className="relative w-full h-12 bg-red-600 hover:bg-red-700 text-white font-bold text-lg rounded-xl transition duration-300 group">
+              Comenzar juego
+              <ArrowRight className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 text-white group-hover:translate-x-1 transition-transform" />
+            </Button>
+          </Link>
         </div>
       </div>
       <div className="flex-1 flex justify-center items-center w-full">

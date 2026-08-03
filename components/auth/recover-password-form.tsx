@@ -18,8 +18,9 @@ import {
   Card,
 } from "@/components/ui/card";
 
+const supabase = createClient();
+
 export default function RecoverPasswordForm() {
-  const supabase = createClient();
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [emailSent, setEmailSent] = useState(false);

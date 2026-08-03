@@ -18,8 +18,9 @@ import {
   Card,
 } from "@/components/ui/card";
 
+const supabase = createClient();
+
 export default function UpdatePasswordForm() {
-  const supabase = createClient();
   const router = useRouter();
   const [form, setForm] = useState({
     password: "",

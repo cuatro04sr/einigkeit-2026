@@ -1,3 +1,4 @@
+import { User } from "@supabase/supabase-js";
 import { LucideIcon } from "lucide-react";
 import React from "react";
 
@@ -83,4 +84,43 @@ export interface VerifyEmailDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   email: string;
+}
+
+export interface Profile {
+  id: string;
+  first_name: string;
+  last_name: string;
+  abi: string;
+  whatsapp: string;
+  city: string;
+  country: string;
+  role: "user" | "admin";
+}
+
+export interface AuthState {
+  user: User | null;
+  profile: Profile | null;
+  isLoading: boolean;
+  setUser: (user: User | null) => void;
+  setProfile: (profile: Profile | null) => void;
+  setIsLoading: (isLoading: boolean) => void;
+  clearAuth: () => void;
+}
+
+export interface Mission {
+  id: string;
+  title: string;
+  subtitle: string;
+  week_number: number;
+  is_active: boolean;
+  unlock_date: string;
+}
+
+export interface MissionCardProps {
+  mission: Mission;
+}
+
+export interface MissionCardsGridProps {
+  missions: Mission[];
+  isLoading: boolean;
 }

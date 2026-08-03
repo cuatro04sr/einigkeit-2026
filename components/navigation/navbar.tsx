@@ -12,22 +12,21 @@ import Image from "next/image";
 import { toast } from "sonner";
 import Link from "next/link";
 
+const supabase = createClient();
+
 export function Navbar() {
   const router = useRouter();
-  const supabase = createClient();
-  const { user, profile, setUser, setProfile } = useAuthStore();
+  const { user, profile } = useAuthStore();
   const isAuthenticated = Boolean(user);
   const firstName =
     profile?.first_name || user?.user_metadata?.first_name || "Usuario";
   const handleLogout = async () => {
     toast.promise(
-      supabase.auth.signOut().then(({ error }) => {
+      async () => {
+        const { error } = await supabase.auth.signOut();
         if (error) throw error;
-        setUser(null);
-        setProfile(null);
         router.push("/login");
-        router.refresh();
-      }),
+      },
       {
         loading: "Cerrando sesión...",
         success: "Sesión cerrada correctamente",

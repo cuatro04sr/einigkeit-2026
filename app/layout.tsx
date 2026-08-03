@@ -1,6 +1,8 @@
+import { AuthProvider } from "@/components/providers/auth-provider";
+import { cn } from "@/lib/utils";
+
 import { Plus_Jakarta_Sans } from "next/font/google";
 import type { Metadata } from "next";
-import { cn } from "@/lib/utils";
 import { Toaster } from "sonner";
 import "./globals.css";
 
@@ -24,7 +26,7 @@ export default function RootLayout({
   return (
     <html lang="es" className={cn(plusJakartaSans.variable, "scroll-smooth")}>
       <body className="font-sans antialiased">
-        {children}
+        <AuthProvider>{children}</AuthProvider>
         <Toaster />
       </body>
     </html>

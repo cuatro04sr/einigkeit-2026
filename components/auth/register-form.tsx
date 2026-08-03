@@ -79,8 +79,9 @@ const INPUT_FIELDS = [
   },
 ] as const;
 
+const supabase = createClient();
+
 export default function RegisterForm() {
-  const supabase = createClient();
   const [state, setState] = useState<RegisterFormState>({
     firstName: "",
     lastName: "",

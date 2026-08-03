@@ -8,7 +8,6 @@ import Link from "next/link";
 
 import { MascotCallout } from "@/components/shared/mascot-callout";
 import { FormField } from "@/components/forms/form-field";
-import { useAuthStore } from "@/store/useAuthStore";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/client";
 import {
@@ -20,10 +19,10 @@ import {
   Card,
 } from "@/components/ui/card";
 
+const supabase = createClient();
+
 export default function LoginForm() {
-  const supabase = createClient();
   const router = useRouter();
-  const { setUser, setProfile } = useAuthStore();
   const [form, setForm] = useState({
     email: "",
     password: "",
@@ -45,18 +44,12 @@ export default function LoginForm() {
             "Credenciales inválidas. Por favor intenta de nuevo.",
           );
         }
-        const { data: profileData, error: profileError } = await supabase
+        const { data: profile } = await supabase
           .from("profiles")
-          .select("*")
+          .select("app_role")
           .eq("id", authData.user.id)
           .single();
-        if (profileError || !profileData) {
-          throw new Error("Error obteniendo el perfil del usuario.");
-        }
-        setUser(authData.user);
-        setProfile(profileData);
-        router.push(profileData.role === "admin" ? "/admin" : "/");
-        return profileData;
+        router.push(profile?.app_role === "admin" ? "/admin" : "/");
       })(),
       {
         loading: "Iniciando sesión...",
