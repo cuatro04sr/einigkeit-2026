@@ -1,14 +1,12 @@
 "use client";
 
-import { Mail, Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { Lock, Eye, EyeOff, ArrowRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
-import Link from "next/link";
 
 import { MascotCallout } from "@/components/shared/mascot-callout";
 import { FormField } from "@/components/forms/form-field";
-import { useAuthStore } from "@/store/useAuthStore";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/client";
 import {
@@ -20,57 +18,52 @@ import {
   Card,
 } from "@/components/ui/card";
 
-export default function LoginForm() {
+export default function UpdatePasswordForm() {
   const supabase = createClient();
   const router = useRouter();
-  const { setUser, setProfile } = useAuthStore();
   const [form, setForm] = useState({
-    email: "",
     password: "",
+    confirmPassword: "",
     showPassword: false,
+    showConfirmPassword: false,
     loading: false,
   });
-  const handleLogin = (e: React.SubmitEvent<HTMLFormElement>) => {
+  const handleUpdatePassword = (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!form.password || form.password.length < 6) {
+      toast.error("La contraseña debe tener al menos 6 caracteres.");
+      return;
+    }
+    if (form.password !== form.confirmPassword) {
+      toast.error("Las contraseñas no coinciden.");
+      return;
+    }
     setForm((prev) => ({ ...prev, loading: true }));
     toast.promise(
       (async () => {
-        const { data: authData, error: authError } =
-          await supabase.auth.signInWithPassword({
-            email: form.email,
-            password: form.password,
-          });
-        if (authError || !authData.user) {
+        const { error } = await supabase.auth.updateUser({
+          password: form.password,
+        });
+        if (error) {
           throw new Error(
-            "Credenciales inválidas. Por favor intenta de nuevo.",
+            error.message || "Error al actualizar la contraseña.",
           );
         }
-        const { data: profileData, error: profileError } = await supabase
-          .from("profiles")
-          .select("*")
-          .eq("id", authData.user.id)
-          .single();
-        if (profileError || !profileData) {
-          throw new Error("Error obteniendo el perfil del usuario.");
-        }
-        setUser(authData.user);
-        setProfile(profileData);
-        router.push(profileData.role === "admin" ? "/admin" : "/");
-        return profileData;
+        router.push("/login");
+        return true;
       })(),
       {
-        loading: "Iniciando sesión...",
-        success: "¡Bienvenido de nuevo! Redirigiendo...",
+        loading: "Actualizando contraseña...",
+        success: "¡Contraseña actualizada con éxito! Redirigiendo...",
         error: (err) =>
           err instanceof Error
             ? err.message
-            : "Ocurrió un error al iniciar sesión",
+            : "Error al actualizar la contraseña",
         finally: () => setForm((prev) => ({ ...prev, loading: false })),
         position: "top-center",
       },
     );
   };
-
   return (
     <>
       <div className="hidden lg:flex h-full absolute top-0 right-0 z-0 pointer-events-none items-center justify-end">
@@ -80,8 +73,8 @@ export default function LoginForm() {
             orientation="vertical"
             message={
               <>
-                Si ya tienes cuenta,{" "}
-                <span className="text-red-600 block">continúa por aquí</span>
+                ¡Casi listo!{" "}
+                <span className="text-red-600 block">Crea tu nueva clave</span>
               </>
             }
           />
@@ -90,10 +83,10 @@ export default function LoginForm() {
       <Card className="w-full max-w-2xl !p-4 sm:!p-8 bg-white rounded-xl shadow-xl gap-4 sm:gap-6">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl sm:text-3xl font-extrabold text-slate-950">
-            Continúa tu misión
+            Nueva contraseña
           </CardTitle>
           <CardDescription className="text-base sm:text-md text-slate-600">
-            Usa tus datos para retomar tus misiones en{" "}
+            Define tu nueva clave para asegurar tu cuenta en{" "}
             <span className="font-bold text-red-600">
               &ldquo;Einigkeit&rdquo;
             </span>{" "}
@@ -101,24 +94,18 @@ export default function LoginForm() {
           </CardDescription>
         </CardHeader>
         <CardContent className="px-4 sm:px-12">
-          <form id="login-form" onSubmit={handleLogin} className="grid gap-4">
-            <FormField
-              id="email"
-              placeholder="Correo electrónico"
-              icon={Mail}
-              type="email"
-              autoComplete="email"
-              value={form.email}
-              onChange={(e) =>
-                setForm((prev) => ({ ...prev, email: e.target.value }))
-              }
-            />
+          <form
+            id="update-form"
+            onSubmit={handleUpdatePassword}
+            className="grid gap-4"
+          >
+            {/* Campo 1: Nueva Contraseña */}
             <FormField
               id="password"
-              placeholder="Contraseña"
+              placeholder="Nueva contraseña"
               icon={Lock}
               type={form.showPassword ? "text" : "password"}
-              autoComplete="current-password"
+              autoComplete="new-password"
               value={form.password}
               onChange={(e) =>
                 setForm((prev) => ({ ...prev, password: e.target.value }))
@@ -144,35 +131,53 @@ export default function LoginForm() {
                 </Button>
               }
             />
-            <Link
-              href="/recover-password"
-              className="text-slate-900 font-medium text-sm underline hover:text-slate-700 transition self-start"
-            >
-              Recuperar contraseña
-            </Link>
+            <FormField
+              id="confirmPassword"
+              placeholder="Confirmar nueva contraseña"
+              icon={Lock}
+              type={form.showConfirmPassword ? "text" : "password"}
+              autoComplete="new-password"
+              value={form.confirmPassword}
+              onChange={(e) =>
+                setForm((prev) => ({
+                  ...prev,
+                  confirmPassword: e.target.value,
+                }))
+              }
+              rightAction={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={() =>
+                    setForm((prev) => ({
+                      ...prev,
+                      showConfirmPassword: !prev.showConfirmPassword,
+                    }))
+                  }
+                  className="h-9 w-9 text-slate-400 hover:text-slate-600 hover:bg-transparent"
+                >
+                  {form.showConfirmPassword ? (
+                    <EyeOff className="h-5 w-5" />
+                  ) : (
+                    <Eye className="h-5 w-5" />
+                  )}
+                </Button>
+              }
+            />
           </form>
         </CardContent>
         <CardFooter className="px-4 sm:px-12 py-0 justify-items-center grid gap-3 border-none">
           <Button
-            form="login-form"
+            form="update-form"
             type="submit"
             disabled={form.loading}
             className="relative w-full h-12 bg-red-600 hover:bg-red-700 text-white font-bold text-xl rounded-xl transition duration-300 group"
           >
-            {form.loading ? "Ingresando..." : "Comenzar a jugar"}
+            {form.loading ? "Guardando..." : "Guardar nueva contraseña"}
             {!form.loading && (
               <ArrowRight className="absolute right-4 top-1/2 -translate-y-1/2 h-6 w-6 text-white group-hover:translate-x-1 transition-transform" />
             )}
-          </Button>
-          <p className="text-md font-medium text-slate-700 mt-2">
-            ¿Es tu primera vez?
-          </p>
-          <Button
-            asChild
-            variant="outline"
-            className="w-full sm:w-xs h-12 bg-white hover:bg-slate-50 text-red-600 hover:text-red-700 font-bold text-base rounded-xl border-red-600 transition duration-300"
-          >
-            <Link href="/register">Crear mi cuenta</Link>
           </Button>
         </CardFooter>
       </Card>

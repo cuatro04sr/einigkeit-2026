@@ -69,6 +69,8 @@ export interface RegisterFormState {
   lastName: string;
   abi: string;
   email: string;
+  password: string;
+  showPassword: boolean;
   whatsapp: string;
   countryCode: string;
   stateCode: string;

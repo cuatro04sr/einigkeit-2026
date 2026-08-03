@@ -7,10 +7,13 @@ import {
   Building2,
   Landmark,
   MapPin,
+  EyeOff,
   Users,
   Phone,
+  Lock,
   User,
   Mail,
+  Eye,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Country, State, City } from "country-state-city";
@@ -19,7 +22,6 @@ import { VerifyEmailDialog } from "@/components/auth/verify-email-dialog";
 import { LocationSelect } from "@/components/forms/location-select";
 import { MascotCallout } from "@/components/shared/mascot-callout";
 import { FormField } from "@/components/forms/form-field";
-import { useAuthStore } from "@/store/useAuthStore";
 import type { RegisterFormState } from "@/types";
 import { Button } from "@/components/ui/button";
 import { createClient } from "@/lib/client";
@@ -37,21 +39,36 @@ const INPUT_FIELDS = [
     id: "firstName",
     placeholder: "Nombre",
     icon: User,
+    type: "text",
     autoComplete: "given-name",
   },
   {
     id: "lastName",
     placeholder: "Apellido",
     icon: Users,
+    type: "text",
     autoComplete: "family-name",
   },
-  { id: "abi", placeholder: "ABI", icon: GraduationCap, autoComplete: "off" },
+  {
+    id: "abi",
+    placeholder: "ABI",
+    icon: GraduationCap,
+    type: "text",
+    autoComplete: "off",
+  },
   {
     id: "email",
     placeholder: "Correo electrónico",
     icon: Mail,
     type: "email",
     autoComplete: "email",
+  },
+  {
+    id: "password",
+    placeholder: "Contraseña",
+    icon: Lock,
+    type: "password",
+    autoComplete: "new-password",
   },
   {
     id: "whatsapp",
@@ -64,12 +81,13 @@ const INPUT_FIELDS = [
 
 export default function RegisterForm() {
   const supabase = createClient();
-  const { setUser, setProfile } = useAuthStore();
   const [state, setState] = useState<RegisterFormState>({
     firstName: "",
     lastName: "",
     abi: "",
     email: "",
+    password: "",
+    showPassword: false,
     whatsapp: "",
     countryCode: "",
     stateCode: "",
@@ -104,43 +122,38 @@ export default function RegisterForm() {
       toast.error("Por favor completa el país, departamento y ciudad.");
       return;
     }
+    if (!state.password || state.password.length < 6) {
+      toast.error("La contraseña debe tener al menos 6 caracteres.");
+      return;
+    }
+    const countryObj = countries.find((c) => c.code === state.countryCode);
+    const stateObj = states.find((s) => s.code === state.stateCode);
     setState((prev) => ({ ...prev, loading: true }));
     toast.promise(
       (async () => {
+        const origin = window.location.origin;
         const { data: authData, error: authError } = await supabase.auth.signUp(
           {
             email: state.email,
-            password: "DefaultPassword123!",
+            password: state.password,
             options: {
-              data: { first_name: state.firstName, last_name: state.lastName },
+              emailRedirectTo: `${origin}/welcome`,
+              data: {
+                first_name: state.firstName,
+                last_name: state.lastName,
+                abi: state.abi,
+                whatsapp: state.whatsapp,
+                country: countryObj?.name || "",
+                state: stateObj?.name || "",
+                city: state.city,
+              },
             },
           },
         );
         if (authError || !authData.user)
           throw new Error(authError?.message || "Error al crear la cuenta.");
-        const countryObj = countries.find((c) => c.code === state.countryCode);
-        const stateObj = states.find((s) => s.code === state.stateCode);
-        const { data: profileData, error: profileError } = await supabase
-          .from("profiles")
-          .insert({
-            id: authData.user.id,
-            first_name: state.firstName,
-            last_name: state.lastName,
-            abi: state.abi,
-            email: state.email,
-            whatsapp: state.whatsapp,
-            country: countryObj?.name || "",
-            state: stateObj?.name || "",
-            city: state.city,
-            role: "user",
-          })
-          .select("*")
-          .single();
-        if (profileError) throw new Error("Error al guardar el perfil.");
-        setUser(authData.user);
-        setProfile(profileData);
         setState((prev) => ({ ...prev, showVerifyDialog: true }));
-        return profileData;
+        return authData.user;
       })(),
       {
         loading: "Creando tu cuenta...",
@@ -187,19 +200,53 @@ export default function RegisterForm() {
             onSubmit={handleRegister}
             className="grid grid-cols-1 md:grid-cols-2 gap-4"
           >
-            {INPUT_FIELDS.map((field) => (
-              <FormField
-                key={field.id}
-                {...field}
-                value={state[field.id as keyof RegisterFormState] as string}
-                onChange={(e) =>
-                  handleChange(
-                    field.id as keyof RegisterFormState,
-                    e.target.value,
-                  )
-                }
-              />
-            ))}
+            {INPUT_FIELDS.map((field) => {
+              const isPassword = field.id === "password";
+              return (
+                <FormField
+                  key={field.id}
+                  {...field}
+                  type={
+                    isPassword
+                      ? state.showPassword
+                        ? "text"
+                        : "password"
+                      : field.type
+                  }
+                  value={
+                    (state[field.id as keyof RegisterFormState] as string) || ""
+                  }
+                  onChange={(e) =>
+                    handleChange(
+                      field.id as keyof RegisterFormState,
+                      e.target.value,
+                    )
+                  }
+                  rightAction={
+                    isPassword ? (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() =>
+                          setState((prev) => ({
+                            ...prev,
+                            showPassword: !prev.showPassword,
+                          }))
+                        }
+                        className="h-9 w-9 text-slate-400 hover:text-slate-600 hover:bg-transparent"
+                      >
+                        {state.showPassword ? (
+                          <EyeOff className="h-5 w-5" />
+                        ) : (
+                          <Eye className="h-5 w-5" />
+                        )}
+                      </Button>
+                    ) : undefined
+                  }
+                />
+              );
+            })}
             <LocationSelect
               id="country"
               placeholder="Selecciona tu país"
@@ -259,16 +306,6 @@ export default function RegisterForm() {
             {!state.loading && (
               <ArrowRight className="absolute right-4 top-1/2 -translate-y-1/2 h-6 w-6 text-white group-hover:translate-x-1 transition-transform" />
             )}
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            onClick={() =>
-              setState((prev) => ({ ...prev, showVerifyDialog: true }))
-            }
-            className="text-sm text-slate-500 hover:text-slate-800 underline"
-          >
-            ¿Necesitas verificar tu correo?
           </Button>
         </CardFooter>
       </Card>
