@@ -38,7 +38,7 @@ export function QuizView({
   const [showResultModal, setShowResultModal] = useState(false);
   const [correctAnswersCount, setCorrectAnswersCount] = useState(0);
   const [earnedPoints, setEarnedPoints] = useState(0);
-  const [isCompleted, setIsCompleted] = useState(true);
+  const [isCompleted, setIsCompleted] = useState(false);
   const currentQuestion = questions[currentIndex];
   const activeQuestion = isSurveyPhase ? surveyQuestion : currentQuestion;
   if (!activeQuestion) return null;
