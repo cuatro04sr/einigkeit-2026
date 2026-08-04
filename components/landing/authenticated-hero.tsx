@@ -114,7 +114,7 @@ export function AuthenticatedHero() {
               isLoading={loading}
             />
           </div>
-          <div className="w-full lg:w-fit h-full flex justify-center lg:justify-end lg:sticky lg:top-6">
+          <div className="w-full lg:w-fit h-full flex justify-center lg:justify-center lg:sticky lg:top-6">
             <MascotCallout
               imageSrc="/mascot/otto-hero-auth.png"
               message={
@@ -124,7 +124,7 @@ export function AuthenticatedHero() {
                 </>
               }
               orientation="vertical"
-              className="!max-w-[160px] [&>div:last-child]:!w-[190px] [&>div:last-child]:!h-[300px] [&_img]:!object-cover [&_img]:!object-top"
+              className="!max-w-[160px] [&>div:last-child]:!w-[190px] [&>div:first-child]:!translate-x-8 [&>div:first-child]:!-translate-y-4 [&>div:last-child]:!h-[300px] [&_img]:!object-cover [&_img]:!translate-x-8"
             />
           </div>
         </div>

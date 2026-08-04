@@ -16,6 +16,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "sonner";
 import Link from "next/link";
+import Image from "next/image";
 
 const supabase = createClient();
 
@@ -37,6 +38,7 @@ export function QuizView({
   const [showResultModal, setShowResultModal] = useState(false);
   const [correctAnswersCount, setCorrectAnswersCount] = useState(0);
   const [earnedPoints, setEarnedPoints] = useState(0);
+  const [isCompleted, setIsCompleted] = useState(true);
   const currentQuestion = questions[currentIndex];
   const activeQuestion = isSurveyPhase ? surveyQuestion : currentQuestion;
   if (!activeQuestion) return null;
@@ -107,7 +109,7 @@ export function QuizView({
         .upsert(responsesToInsert, { onConflict: "user_id,question_id" });
       if (error) throw error;
       toast.success("¡Misión completada con éxito!");
-      router.push("/");
+      setIsCompleted(true);
     } catch (error: unknown) {
       const message =
         error instanceof Error ? error.message : "Error al guardar respuestas";
@@ -116,6 +118,39 @@ export function QuizView({
       setSubmitting(false);
     }
   };
+  if (isCompleted) {
+    return (
+      <div className="flex flex-col items-center justify-between !p-0 relative overflow-hidden">
+        <div className="text-center">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+            Misión {mission.week_number}: Completada
+          </h1>
+        </div>
+        <div className="relative w-full max-w-2xl aspect-video">
+          <Image
+            src="/backgrounds/mission/wall-mission-1.png" // Cambia esta ruta por la de tu imagen del muro
+            alt="Muro con apertura"
+            fill
+            className="object-contain"
+            priority
+          />
+        </div>
+        <div className="w-full flex items-center justify-between max-w-6xl">
+          <p className="text-lg sm:text-xl md:text-2xl font-bold text-red-600 text-center max-w-xl leading-snug px-4">
+            Tu participación abrió la primera apertura en el muro que separa
+            nuestras generaciones.
+          </p>
+          <Button
+            onClick={() => router.push("/")}
+            className="bg-red-600 hover:bg-red-700 text-white font-semibold rounded-2xl px-6 py-3 shadow-md hover:shadow-lg transition-all flex items-center gap-2 shrink-0"
+          >
+            <span>Continuar</span>
+            <ArrowRight className="w-4 h-4" />
+          </Button>
+        </div>
+      </div>
+    );
+  }
   return (
     <>
       <div
@@ -125,9 +160,9 @@ export function QuizView({
                    lg:bg-[size:100%_100%] lg:bg-center
                    lg:bg-[url('/backgrounds/mission/bg-mission-1.png')]"
       />
-      <div className="flex flex-col justify-stretch w-full mx-auto px-4 py-2 gap-4">
+      <div className="flex flex-col w-full mx-auto px-4 py-2">
         <div className="grid grid-cols-1 lg:grid-cols-[auto_1fr] items-self-center gap-8 w-full">
-          <div className="flex flex-col justify-between w-full max-w-2xl gap-5">
+          <div className="flex flex-col justify-between w-full max-w-2xl gap-5 mb-5">
             <div className="flex items-center gap-3">
               <Button
                 asChild
