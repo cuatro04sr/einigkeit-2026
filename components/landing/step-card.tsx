@@ -36,11 +36,11 @@ export function StepCard({
             </div>
             <div className="flex items-center gap-2">
               <div
-                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-xl ${colors.iconBg} ${colors.iconColor}`}
+                className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${colors.iconBg} ${colors.iconColor}`}
               >
                 <Icon className="h-4 w-4" />
               </div>
-              <p className="text-xs font-medium text-muted-foreground leading-tight line-clamp-2">
+              <p className="text-xs font-medium leading-tight line-clamp-2">
                 {description}
               </p>
             </div>
@@ -50,10 +50,10 @@ export function StepCard({
               <div className="flex items-center gap-3">
                 <Separator
                   orientation="vertical"
-                  className="w-[1.5px] bg-foreground/80 h-8"
+                  className="w-[1.5px] bg-foreground/80"
                 />
                 <CollapsibleTrigger asChild>
-                  <div className="max-w-[120px] text-[11px] font-medium leading-snug text-foreground cursor-pointer">
+                  <div className="max-w-[120px] text-[11px] text-center font-medium leading-snug text-foreground cursor-pointer">
                     {extraText}
                   </div>
                 </CollapsibleTrigger>

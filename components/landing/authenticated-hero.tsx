@@ -59,7 +59,13 @@ export function AuthenticatedHero() {
     return Math.round((completedCount / totalMissions) * 100);
   }, [completedCount, totalMissions]);
   return (
-    <section className="relative w-full max-w-7xl mx-auto py-6">
+    <section
+      className="relative w-full max-w-7xl mx-auto py-6
+                 bg-cover bg-center bg-no-repeat
+                 bg-[url('/bg-mobile.png')]
+                 lg:bg-[size:100%_100%] lg:bg-center
+                 lg:bg-[url('/backgrounds/auth/bg-desktop.png')]"
+    >
       <div className="relative z-10 w-full px-8 sm:px-16 md:px-24 lg:px-32 flex flex-col gap-6 lg:gap-8">
         <header className="w-full">
           <div className="flex flex-col lg:flex-row items-center justify-between gap-6">
@@ -110,7 +116,7 @@ export function AuthenticatedHero() {
           </div>
           <div className="w-full lg:w-fit h-full flex justify-center lg:justify-end lg:sticky lg:top-6">
             <MascotCallout
-              imageSrc="/otto-rabbit-2.png"
+              imageSrc="/mascot/otto-hero-auth.png"
               message={
                 <>
                   Completa las misiones, acumula puntos, diviértete y prepárate
@@ -118,7 +124,7 @@ export function AuthenticatedHero() {
                 </>
               }
               orientation="vertical"
-              className="!max-w-[160px] [&>div:last-child]:!w-[180px] [&>div:last-child]:!h-[320px] [&_img]:!object-cover [&_img]:!object-top"
+              className="!max-w-[160px] [&>div:last-child]:!w-[190px] [&>div:last-child]:!h-[300px] [&_img]:!object-cover [&_img]:!object-top"
             />
           </div>
         </div>

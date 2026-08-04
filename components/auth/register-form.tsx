@@ -168,10 +168,17 @@ export default function RegisterForm() {
   };
   return (
     <>
+      <div
+        className="absolute inset-0 -z-10 pointer-events-none
+                 bg-cover bg-center bg-no-repeat
+                 bg-[url('/bg-mobile.png')]
+                 lg:bg-[size:100%_100%] lg:bg-center
+                 lg:bg-[url('/backgrounds/auth/bg-desktop.png')]"
+      />
       <div className="hidden lg:flex h-full absolute top-0 right-0 z-0 pointer-events-none items-center justify-end">
         <div className="pointer-events-auto">
           <MascotCallout
-            imageSrc="/otto-rabbit-2.png"
+            imageSrc="/mascot/otto-stand-white.png"
             orientation="vertical"
             message={
               <>

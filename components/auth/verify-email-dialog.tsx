@@ -14,7 +14,7 @@ export function VerifyEmailDialog({
       open={open}
       onOpenChange={onOpenChange}
       title="Verifica tu correo electrónico"
-      imageSrc="/otto-happy.png"
+      imageSrc="/mascot/otto-happy.png"
       imageAlt="Mascota de bienvenida"
     >
       <div className="flex flex-col h-full justify-center gap-3">

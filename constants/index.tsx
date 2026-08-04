@@ -24,8 +24,9 @@ export const HERO_CARDS_STEPS: StepItem[] = [
   {
     id: 2,
     title: "Completa misiones",
-    desc: "Responde, comparte y suma puntos",
-    extra: "Las misiones son retos, darán progreso a quién logre superarlas.",
+    desc: "Son 8 misiones.",
+    extra:
+      "Son 8 misiones, una cada semana, durante 8 semanas. Avanzas a medida que superas cada misión.",
     icon: ListOrdered,
     color: {
       numberBg: "bg-blue-600",
@@ -38,7 +39,7 @@ export const HERO_CARDS_STEPS: StepItem[] = [
     title: "Desbloqueo semanal",
     desc: "Cada viernes se habilita una nueva misión.",
     extra:
-      "Una vez termines una misión, espera a la próxima semana por una nueva",
+      "Una vez termines una misión, espera a la próxima semana por la siguiente.",
     icon: UserCheck,
     color: {
       numberBg: "bg-amber-400 text-black",
@@ -49,8 +50,8 @@ export const HERO_CARDS_STEPS: StepItem[] = [
   {
     id: 4,
     title: "Sorpresas y premios",
-    desc: "Al llegar al final tendrás una recompensa",
-    extra: "Las recompensas mantendrán tu motivación para llegar al final.",
+    desc: "Al llegar al final tendrás una recompensa.",
+    extra: "Las recompensas mantendrán tu movitación para llegar al final.",
     icon: Gift,
     color: {
       numberBg: "bg-emerald-600",
@@ -61,7 +62,7 @@ export const HERO_CARDS_STEPS: StepItem[] = [
   {
     id: 5,
     title: "Fecha límite",
-    desc: "Tienes plazo hasta el 28 de septiembre de 2026",
+    desc: "Tienes plazo hasta el 28 de septiembre de 2026.",
     extra: "Recuerda inscribirte a tiempo para empezar en el momento oportuno.",
     icon: Clock,
     color: {
@@ -74,14 +75,7 @@ export const HERO_CARDS_STEPS: StepItem[] = [
     id: 6,
     title: "Gran reencuentro",
     desc: "El evento final...",
-    extra: (
-      <span>
-        Completa las 8 misiones y prepárate para el encuentro del{" "}
-        <strong className="text-red-500 font-semibold block">
-          Sábado 3 de octubre de 2026
-        </strong>
-      </span>
-    ),
+    extra: "Confirma tu asistencia al encuentro: Sábado 3 de octubre 2026",
     icon: Handshake,
     color: {
       numberBg: "bg-blue-600",
@@ -92,6 +86,6 @@ export const HERO_CARDS_STEPS: StepItem[] = [
 ];
 
 export const NAVBAR_LOGOS = [
-  { src: "/asodeca-logo.png", alt: "Asodeca Logo" },
-  { src: "/einigkeit-logo.png", alt: "Einigkeit Logo" },
+  { src: "/logos/asodeca-logo.png", alt: "Asodeca Logo" },
+  { src: "/logos/einigkeit-logo.png", alt: "Einigkeit Logo" },
 ];

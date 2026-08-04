@@ -35,12 +35,12 @@ export function MissionCard({
     <Card
       size="sm"
       className={cn(
-        "relative h-full !gap-0 flex flex-col justify-between rounded-2xl transition-all duration-200 border shadow-sm overflow-hidden",
+        "relative h-full !gap-0 bg-white flex flex-col justify-between rounded-2xl transition-all duration-200 border shadow-sm overflow-hidden",
         isCompleted
-          ? "border-emerald-400/80 bg-emerald-50/20 shadow-emerald-400/5"
+          ? "border-emerald-400/80 shadow-emerald-400/5"
           : isUnlocked
-            ? "border-amber-400 shadow-amber-400/10 bg-white"
-            : "border-slate-200/80 bg-slate-50/50 opacity-90",
+            ? "border-amber-400 shadow-amber-400/10"
+            : "border-slate-200/80",
       )}
     >
       <CardHeader className="pb-1">
@@ -48,18 +48,10 @@ export function MissionCard({
           <span
             className={cn(
               "flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold shadow-inner",
-              isCompleted
-                ? "bg-emerald-600 text-white"
-                : isUnlocked
-                  ? "bg-red-600 text-white"
-                  : "bg-slate-400 text-white",
+              isUnlocked ? "bg-red-600 text-white" : "bg-slate-400 text-white",
             )}
           >
-            {isCompleted ? (
-              <Check className="w-4 h-4 stroke-[3]" />
-            ) : (
-              mission.week_number
-            )}
+            {mission.week_number}
           </span>
         </CardTitle>
         <CardAction>
@@ -84,11 +76,7 @@ export function MissionCard({
         <CardDescription
           className={cn(
             "text-xs font-extrabold tracking-wider uppercase pt-1",
-            isCompleted
-              ? "text-emerald-600"
-              : isUnlocked
-                ? "text-red-600"
-                : "text-slate-500",
+            isUnlocked ? "text-red-600" : "text-slate-500",
           )}
         >
           MISIÓN {mission.week_number}
@@ -110,13 +98,18 @@ export function MissionCard({
       <CardFooter className="pt-4 pb-4 border-none bg-transparent">
         {isCompleted ? (
           <Button
-            disabled
+            asChild
             variant="outline"
             size="lg"
-            className="w-full !h-10 border text-emerald-600 bg-emerald-50 border-emerald-300 rounded-full text-xs font-bold px-5 flex items-center justify-between gap-2 shadow-none cursor-not-allowed !opacity-100"
+            className="w-full !h-10 border border-emerald-400 rounded-full hover:bg-emerald-100/60 transition-colors shadow-sm group p-0 overflow-hidden"
           >
-            <span className="truncate">Completada</span>
-            <Check className="w-5 h-5 text-emerald-500 shrink-0 stroke-[2.5]" />
+            <Link
+              href={`/mission/${mission.id}`}
+              className="w-full h-full px-5 flex items-center justify-between gap-2 text-slate-950 text-xs font-bold"
+            >
+              <span className="truncate">Reintentar misión</span>
+              <ArrowRight className="w-5 h-5 text-emerald-500 group-hover:translate-x-1 transition-transform shrink-0" />
+            </Link>
           </Button>
         ) : isUnlocked ? (
           <Button

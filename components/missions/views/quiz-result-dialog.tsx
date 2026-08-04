@@ -15,7 +15,9 @@ export function QuizResultDialog({
   submitting = false,
 }: QuizResultDialogProps) {
   const isSuccess = correctAnswers >= 3;
-  const imageSrc = isSuccess ? "/otto-happy.png" : "/otto-sad.png";
+  const imageSrc = isSuccess
+    ? "/mascot/otto-happy.png"
+    : "/mascot/otto-sad.png";
   const title = isSuccess ? "¡Muy bien!" : "¡No te rindas!";
   return (
     <MascotDialog
