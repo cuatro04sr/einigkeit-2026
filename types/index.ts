@@ -114,7 +114,7 @@ export interface Profile {
   whatsapp: string;
   city: string;
   country: string;
-  role: "user" | "admin";
+  app_role: "user" | "admin";
 }
 
 export interface AuthState {
