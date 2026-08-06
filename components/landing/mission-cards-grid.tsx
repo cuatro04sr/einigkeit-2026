@@ -5,6 +5,8 @@ import { MissionCardsGridProps } from "@/types";
 export function MissionsCardsGrid({
   missions,
   completedMissionIds,
+  pointsPerMission,
+  perfectMissionIds,
   isLoading,
 }: MissionCardsGridProps) {
   return (
@@ -18,6 +20,8 @@ export function MissionsCardsGrid({
               key={mission.id}
               mission={mission}
               isCompleted={completedMissionIds.has(mission.id)}
+              isPerfect={perfectMissionIds.has(mission.id)}
+              earnedPoints={pointsPerMission[mission.id] ?? 0}
             />
           ))}
     </div>

@@ -14,12 +14,14 @@ import {
   CardAction,
 } from "@/components/ui/card";
 
-import { Lock, ArrowRight, Check } from "lucide-react";
+import { Lock, ArrowRight, Trophy, CheckCircle2 } from "lucide-react";
 import Link from "next/link";
 
 export function MissionCard({
   mission,
   isCompleted = false,
+  isPerfect = false,
+  earnedPoints = 0,
 }: MissionCardProps) {
   const now = new Date();
   const unlockDate = new Date(mission.unlock_date);
@@ -58,9 +60,10 @@ export function MissionCard({
           {isCompleted ? (
             <Badge
               variant="outline"
-              className="text-[10px] font-bold text-emerald-600 bg-emerald-50 border-emerald-300 rounded-full tracking-wider uppercase px-2.5 py-0.5"
+              className="text-[10px] font-extrabold text-amber-700 bg-amber-50 border-amber-300 rounded-full tracking-wide px-2 py-0.5 flex items-center gap-1"
             >
-              Completada
+              <Trophy className="w-3 h-3 text-amber-500 fill-amber-500" />
+              <span>+{earnedPoints} pts</span>
             </Badge>
           ) : isUnlocked ? (
             <Badge
@@ -96,7 +99,17 @@ export function MissionCard({
         </p>
       </CardContent>
       <CardFooter className="pt-4 pb-4 border-none bg-transparent">
-        {isCompleted ? (
+        {isPerfect ? (
+          <Button
+            disabled
+            variant="outline"
+            size="lg"
+            className="w-full !h-10 border border-emerald-300 bg-emerald-50 text-emerald-700 font-bold text-xs rounded-full cursor-not-allowed opacity-100 flex items-center justify-center gap-2"
+          >
+            <span>Completada</span>
+            <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+          </Button>
+        ) : isCompleted ? (
           <Button
             asChild
             variant="outline"
@@ -128,7 +141,7 @@ export function MissionCard({
           </Button>
         ) : (
           <div className="w-full text-center py-2">
-            <p className="text-xs text-slate-400 font-medium capitalize">
+            <p className="text-xs text-slate-400 font-medium">
               Se desbloquea el {formatUnlockDate(unlockDate)}
             </p>
           </div>

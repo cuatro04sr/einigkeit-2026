@@ -93,6 +93,8 @@ export function QuizView({
         question_id: q.id,
         selected_option: selectedOptions[q.id],
         is_correct: selectedOptions[q.id] === q.correct_option_id,
+        points_earned:
+          (selectedOptions[q.id] === q.correct_option_id) == true ? 10 : 0,
       }));
       if (surveyQuestion && surveySelectedOption) {
         responsesToInsert.push({
@@ -102,6 +104,7 @@ export function QuizView({
           selected_option: surveySelectedOption,
           text_answer: surveyText || null,
           is_correct: null,
+          points_earned: 0,
         });
       }
       const { error } = await supabase
@@ -279,58 +282,58 @@ export function QuizView({
                 />
               </div>
             )}
+            <Card className="w-full bg-[#FFFDF9] border-slate-200/80 rounded-2xl shadow-none py-0">
+              <CardContent className="flex items-center justify-between p-3 sm:p-4 gap-2">
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="rounded-full border-red-300 bg-white text-red-600 hover:bg-red-50 hover:text-red-700 font-medium px-3 sm:px-5 text-sm shadow-none shrink-0"
+                >
+                  <Link href="/">
+                    <ArrowLeft className="w-4 h-4 sm:mr-2" />
+                    <span className="hidden sm:inline">Salir de la misión</span>
+                    <span className="inline sm:hidden">Salir</span>
+                  </Link>
+                </Button>
+                <Button
+                  onClick={isSurveyPhase ? handleFinalSubmit : handleNext}
+                  size="lg"
+                  disabled={!activeSelectedId || submitting}
+                  className={cn(
+                    "rounded-xl font-medium px-4 sm:px-6 text-sm transition-all flex items-center justify-center gap-2 shadow-none shrink-0",
+                    activeSelectedId
+                      ? "bg-blue-600 hover:bg-blue-700 text-white"
+                      : "bg-slate-300 text-slate-500 cursor-not-allowed",
+                  )}
+                >
+                  <span>
+                    {submitting
+                      ? "Guardando..."
+                      : isSurveyPhase
+                        ? "Finalizar Misión"
+                        : currentIndex < questions.length - 1
+                          ? "Siguiente"
+                          : "Finalizar"}
+                  </span>
+                  <ArrowRight className="w-4 h-4 shrink-0" />
+                </Button>
+              </CardContent>
+            </Card>
           </div>
           <MascotCallout
-            imageSrc="/mascot/otto-mission-1.png"
+            imageSrc="/mascot/otto-mission.png"
             message={
               <>
                 Elige una <span className="text-red-600 block">respuesta</span>
               </>
             }
             orientation="horizontal"
-            className="!w-fit self-end justify-self-center
+            className="!w-fit self-center justify-self-center
                       [&>div:first-child]:!text-xs [&>div:first-child]:!max-w-[110px]
-                      [&>div:last-child]:!w-[200px] [&>div:last-child]:!h-[250px]"
+                      [&>div:last-child]:!w-[260px] [&>div:last-child]:!h-[340px]"
           />
         </div>
-        <Card className="w-full bg-[#FFFDF9] border-slate-200/80 rounded-2xl shadow-none py-0">
-          <CardContent className="flex items-center justify-between p-3 sm:p-4 gap-2">
-            <Button
-              asChild
-              size="lg"
-              variant="outline"
-              className="rounded-full border-red-300 bg-white text-red-600 hover:bg-red-50 hover:text-red-700 font-medium px-3 sm:px-5 text-sm shadow-none shrink-0"
-            >
-              <Link href="/">
-                <ArrowLeft className="w-4 h-4 sm:mr-2" />
-                <span className="hidden sm:inline">Salir de la misión</span>
-                <span className="inline sm:hidden">Salir</span>
-              </Link>
-            </Button>
-            <Button
-              onClick={isSurveyPhase ? handleFinalSubmit : handleNext}
-              size="lg"
-              disabled={!activeSelectedId || submitting}
-              className={cn(
-                "rounded-xl font-medium px-4 sm:px-6 text-sm transition-all flex items-center justify-center gap-2 shadow-none shrink-0",
-                activeSelectedId
-                  ? "bg-blue-600 hover:bg-blue-700 text-white"
-                  : "bg-slate-300 text-slate-500 cursor-not-allowed",
-              )}
-            >
-              <span>
-                {submitting
-                  ? "Guardando..."
-                  : isSurveyPhase
-                    ? "Finalizar Misión"
-                    : currentIndex < questions.length - 1
-                      ? "Siguiente"
-                      : "Finalizar"}
-              </span>
-              <ArrowRight className="w-4 h-4 shrink-0" />
-            </Button>
-          </CardContent>
-        </Card>
         <QuizResultDialog
           open={showResultModal}
           onOpenChange={setShowResultModal}

@@ -44,15 +44,17 @@ export function QuizResultDialog({
           resto de la misión?
         </p>
         <div className="grid grid-cols-2 gap-2 mt-3 w-full max-w-sm">
-          <Button
-            size="sm"
-            onClick={onRetry}
-            disabled={submitting}
-            className="h-8 px-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full text-xs transition-all flex items-center justify-center gap-1 shadow-sm w-full"
-          >
-            <span className="truncate">Intentar de nuevo</span>
-            <RotateCcw className="h-3 w-3 shrink-0" />
-          </Button>
+          {earnedPoints !== 40 ? (
+            <Button
+              size="sm"
+              onClick={onRetry}
+              disabled={submitting}
+              className="h-8 px-2 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-full text-xs transition-all flex items-center justify-center gap-1 shadow-sm w-full"
+            >
+              <span className="truncate">Intentar de nuevo</span>
+              <RotateCcw className="h-3 w-3 shrink-0" />
+            </Button>
+          ) : null}
           <Button
             size="sm"
             variant="outline"

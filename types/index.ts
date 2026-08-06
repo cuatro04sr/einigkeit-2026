@@ -139,11 +139,15 @@ export interface Mission {
 export interface MissionCardProps {
   mission: Mission;
   isCompleted?: boolean;
+  isPerfect?: boolean;
+  earnedPoints: number;
 }
 
 export interface MissionCardsGridProps {
   missions: Mission[];
   completedMissionIds: Set<string>;
+  pointsPerMission: Record<string, number>;
+  perfectMissionIds: Set<string>;
   isLoading: boolean;
 }
 
@@ -180,5 +184,6 @@ export type UserResponsePayload = {
   question_id: string;
   selected_option: string;
   is_correct: boolean | null;
+  points_earned: number;
   text_answer?: string | null;
 };

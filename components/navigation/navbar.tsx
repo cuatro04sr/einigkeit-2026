@@ -20,6 +20,7 @@ export function Navbar() {
   const isAuthenticated = Boolean(user);
   const firstName =
     profile?.first_name || user?.user_metadata?.first_name || "Usuario";
+
   const handleLogout = async () => {
     toast.promise(
       async () => {
@@ -34,10 +35,11 @@ export function Navbar() {
       },
     );
   };
+
   return (
     <header className="sticky top-0 z-50 h-16 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto flex h-full items-center justify-between px-6">
-        <div className="flex items-center gap-3 h-8">
+      <div className="container mx-auto grid grid-cols-3 h-full items-center px-6">
+        <div className="flex items-center justify-start gap-3 h-8">
           {NAVBAR_LOGOS.map((logo, index) => (
             <div key={logo.src} className="flex items-center gap-3 h-full">
               {index > 0 && <Separator orientation="vertical" />}
@@ -54,7 +56,17 @@ export function Navbar() {
             </div>
           ))}
         </div>
-        <div className="flex items-center gap-3 h-8">
+        <div className="flex items-center justify-center h-8">
+          <Image
+            src={"/logos/tq-logo.png"}
+            alt={"TQ Logo"}
+            width={120}
+            height={32}
+            className="h-8 w-auto object-contain"
+            priority
+          />
+        </div>
+        <div className="flex items-center justify-end gap-3 h-8">
           {isAuthenticated ? (
             <Button
               variant="outline"

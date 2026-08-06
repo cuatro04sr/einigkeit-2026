@@ -3,11 +3,13 @@
 import { MissionsCardsGrid } from "@/components/landing/mission-cards-grid";
 import { MascotCallout } from "@/components/shared/mascot-callout";
 import { useAuthStore } from "@/store/useAuthStore";
+import { Badge } from "@/components/ui/badge";
 import { createClient } from "@/lib/client";
 import { Mission } from "@/types";
 
 import { useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { Trophy } from "lucide-react";
 
 const supabase = createClient();
 
@@ -17,30 +19,64 @@ export function AuthenticatedHero() {
   const [completedMissionIds, setCompletedMissionIds] = useState<Set<string>>(
     new Set(),
   );
+  const [userResponses, setUserResponses] = useState<
+    { mission_id: string; points_earned: number | null }[]
+  >([]);
+  const [perfectMissionIds, setPerfectMissionIds] = useState<Set<string>>(
+    new Set(),
+  );
+  const [points, setPoints] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(true);
   useEffect(() => {
     const fetchData = async () => {
       if (!user) return;
       try {
         setLoading(true);
-        const [missionsRes, responsesRes] = await Promise.all([
+        const [missionsRes, responsesRes, profileRes] = await Promise.all([
           supabase
             .from("missions")
             .select("*")
             .order("week_number", { ascending: true }),
           supabase
             .from("user_responses")
-            .select("mission_id")
+            .select("mission_id, points_earned, is_correct")
             .eq("user_id", user!.id),
+          supabase.from("profiles").select("points").eq("id", user.id).single(),
         ]);
         if (missionsRes.error) throw missionsRes.error;
         if (responsesRes.error) throw responsesRes.error;
         if (missionsRes.data) setMissions(missionsRes.data as Mission[]);
+        if (profileRes.data) setPoints(profileRes.data.points || 0);
         if (responsesRes.data) {
+          setUserResponses(responsesRes.data);
           const uniqueMissions = new Set(
             responsesRes.data.map((r) => r.mission_id),
           );
           setCompletedMissionIds(uniqueMissions);
+          const missionEvalMap: Record<
+            string,
+            { evaluatedCount: number; allTrue: boolean }
+          > = {};
+          responsesRes.data.forEach((r) => {
+            if (r.is_correct === null) return;
+            if (!missionEvalMap[r.mission_id]) {
+              missionEvalMap[r.mission_id] = {
+                evaluatedCount: 0,
+                allTrue: true,
+              };
+            }
+            missionEvalMap[r.mission_id].evaluatedCount += 1;
+            if (r.is_correct === false) {
+              missionEvalMap[r.mission_id].allTrue = false;
+            }
+          });
+          const perfects = new Set<string>();
+          Object.entries(missionEvalMap).forEach(([missionId, data]) => {
+            if (data.evaluatedCount > 0 && data.allTrue) {
+              perfects.add(missionId);
+            }
+          });
+          setPerfectMissionIds(perfects);
         }
       } catch (error: unknown) {
         const message =
@@ -52,6 +88,16 @@ export function AuthenticatedHero() {
     };
     fetchData();
   }, [user]);
+  const pointsPerMission = useMemo(() => {
+    const pointsMap: Record<string, number> = {};
+    userResponses.forEach((res) => {
+      if (!pointsMap[res.mission_id]) {
+        pointsMap[res.mission_id] = 0;
+      }
+      pointsMap[res.mission_id] += res.points_earned || 0;
+    });
+    return pointsMap;
+  }, [userResponses]);
   const totalMissions = missions.length;
   const completedCount = completedMissionIds.size;
   const percentage = useMemo(() => {
@@ -96,9 +142,18 @@ export function AuthenticatedHero() {
                 />
               </div>
               <div className="space-y-1 text-xs sm:text-sm">
-                <p className="text-slate-500 font-medium">
-                  {percentage}% completado
-                </p>
+                <div className="flex flex-row justify-between items-center">
+                  <p className="text-slate-500 font-medium">
+                    {percentage}% completado
+                  </p>
+                  <Badge
+                    variant="secondary"
+                    className="bg-amber-50 text-amber-700 border border-amber-200/60 font-bold px-2.5 py-1 text-xs sm:text-sm gap-1.5 shrink-0 rounded-xl"
+                  >
+                    <Trophy className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+                    <span>{points} pts</span>
+                  </Badge>
+                </div>
                 <p className="text-red-600 font-bold">
                   Fecha límite: 28 de septiembre de 2026
                 </p>
@@ -111,6 +166,8 @@ export function AuthenticatedHero() {
             <MissionsCardsGrid
               missions={missions}
               completedMissionIds={completedMissionIds}
+              perfectMissionIds={perfectMissionIds}
+              pointsPerMission={pointsPerMission}
               isLoading={loading}
             />
           </div>

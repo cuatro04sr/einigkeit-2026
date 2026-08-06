@@ -51,7 +51,7 @@ const INPUT_FIELDS = [
   },
   {
     id: "abi",
-    placeholder: "ABI",
+    placeholder: "ABI 2026",
     icon: GraduationCap,
     type: "text",
     autoComplete: "off",
