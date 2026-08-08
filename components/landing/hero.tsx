@@ -46,7 +46,7 @@ export function Hero() {
               <span className="font-semibold text-red-500">
                 &ldquo;Einigkeit&rdquo; 2026.
               </span>{" "}
-              Vivirás 8 misiones semanales para reconectar con tu historia y
+              Vivirás una mision semanal para reconectar con tu historia y
               derribar el muro del reencuentro.
             </p>
           </div>
