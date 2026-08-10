@@ -112,9 +112,12 @@ export interface Profile {
   last_name: string;
   abi: string;
   whatsapp: string;
-  city: string;
   country: string;
+  state: string;
+  city: string;
   app_role: "user" | "admin";
+  points: number;
+  created_at: string;
 }
 
 export interface AuthState {
@@ -187,3 +190,63 @@ export type UserResponsePayload = {
   points_earned: number;
   text_answer?: string | null;
 };
+
+export interface MissionResponseJoinedRecord {
+  id: string;
+  created_at: string;
+  selected_option: string;
+  text_answer: string | null;
+  is_correct: boolean | null;
+  points_earned: number;
+  profiles: Pick<
+    Profile,
+    "first_name" | "last_name" | "abi" | "whatsapp" | "country" | "city"
+  > | null;
+  missions: Pick<Mission, "title" | "week_number"> | null;
+  questions: Pick<Question, "question_text" | "question_type"> | null;
+}
+
+export type CSVExportRow = Record<
+  string,
+  string | number | boolean | null | undefined
+>;
+
+export interface AdminHeaderProps {
+  missions?: Mission[];
+  searchQuery?: string;
+  onSearchChange?: (query: string) => void;
+}
+
+export interface StatItem {
+  id: string;
+  title: string;
+  value: number | string;
+  icon: LucideIcon;
+  iconColor: string;
+  bgColor: string;
+}
+
+export interface StatsProps {
+  items: StatItem[];
+  loading?: boolean;
+}
+
+export interface RecentActivity {
+  id: string;
+  user_name: string;
+  action: string;
+  detail: string;
+  created_at: string;
+}
+
+export interface GeoLocation {
+  country: string;
+  state: string;
+  city: string;
+}
+
+export interface GeographicScopeCardProps {
+  locations?: GeoLocation[];
+  profilesCount: number;
+  loading?: boolean;
+}

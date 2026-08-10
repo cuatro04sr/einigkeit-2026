@@ -10,7 +10,7 @@ export default function AdminLayout({
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
         <AppSidebar />
-        <main className="flex-1 p-6 overflow-y-auto">
+        <main className="flex-1 p-6 overflow-y-auto bg-[#FCF2EC]">
           <div className="mb-4 md:hidden">
             <SidebarTrigger />
           </div>
