@@ -19,6 +19,7 @@ export default function AdminDashboardPage() {
   const [missions, setMissions] = useState<Mission[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [profilesCount, setProfilesCount] = useState<number>(0);
+  const [pendingCount, setPendingCount] = useState<number>(0);
   const [completedMissionsCount, setCompletedMissionsCount] =
     useState<number>(0);
   const [activities, setActivities] = useState<RecentActivity[]>([]);
@@ -40,6 +41,7 @@ export default function AdminDashboardPage() {
           responsesRes,
           activitiesRes,
           locationsRes,
+          pendingRes,
         ] = await Promise.all([
           supabase
             .from("missions")
@@ -49,6 +51,11 @@ export default function AdminDashboardPage() {
           supabase.rpc("get_completed_missions_count"),
           supabase.rpc("get_recent_mission_activity", { limit_count: 5 }),
           supabase.rpc("get_geographic_locations"),
+          supabase
+            .from("user_responses")
+            .select("*", { count: "exact", head: true })
+            .eq("status", "pending")
+            .not("selected_option", "is", null),
         ]);
         if (missionsRes.error)
           console.error("Error al obtener misiones:", missionsRes.error);
@@ -63,11 +70,13 @@ export default function AdminDashboardPage() {
           );
         if (locationsRes.error)
           console.error("Error ubicaciones:", locationsRes.error.message);
+        if (pendingRes.error) console.error("Error fotos: ", pendingRes.error);
         setMissions(missionsRes.data || []);
         setProfilesCount(profilesRes.count ?? 0);
         setCompletedMissionsCount(responsesRes.data ?? 0);
         setActivities(activitiesRes.data || []);
         setLocations(locationsRes.data || []);
+        setPendingCount(pendingRes.count ?? 0);
       } catch (err) {
         console.error("Error inesperado en fetchDashboardData:", err);
       } finally {
@@ -91,7 +100,7 @@ export default function AdminDashboardPage() {
       {
         id: "pending-content",
         title: "Contenidos por aprobar",
-        value: (0).toLocaleString("es-CO"),
+        value: pendingCount?.toLocaleString("es-CO") || "0",
         icon: ImageIcon,
         iconColor: "text-rose-500",
         bgColor: "bg-rose-100/70",

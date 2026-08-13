@@ -301,3 +301,16 @@ export interface AbiStats {
   completedMissionsSet: Set<string>;
   pointsSum: number;
 }
+
+export interface PhotoViewProps {
+  mission: Mission;
+  question?: Question;
+}
+
+export interface ModerationItem {
+  id: string;
+  selected_option: string;
+  text_answer: string | null;
+  status: string;
+  profiles: { first_name: string | null; last_name: string | null }[] | null;
+}

@@ -1,7 +1,7 @@
 "use client";
 
 //import { MatchingView } from "@/components/missions/views/matching-view";
-//import { PhotoView } from "@/components/missions/views/photo-view";
+import { PhotoView } from "@/components/missions/views/photo-view";
 import { QuizView } from "@/components/missions/views/quiz-view";
 import { createClient } from "@/lib/client";
 import { Mission, Question } from "@/types";
@@ -16,7 +16,6 @@ export function MissionContainer({ missionId }: { missionId: string }) {
   const [mission, setMission] = useState<Mission | null>(null);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     async function fetchMissionData() {
       try {
@@ -60,6 +59,7 @@ export function MissionContainer({ missionId }: { missionId: string }) {
   const surveyQuestion = questions.find((q) =>
     q.question_type?.startsWith("survey_"),
   );
+  console.log(questions, mission);
   switch (mission.week_number) {
     case 1:
       return (
@@ -69,9 +69,9 @@ export function MissionContainer({ missionId }: { missionId: string }) {
           surveyQuestion={surveyQuestion}
         />
       );
-    /*
     case 2:
       return <PhotoView mission={mission} question={questions[0]} />;
+    /*
     case 3:
       return <MatchingView mission={mission} questions={questions} />;
     */

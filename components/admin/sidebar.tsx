@@ -29,8 +29,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const navItems = [
   { label: "Panel", href: "/admin", icon: Home },
   { label: "Exalumnos", href: "/admin/exalumnos", icon: Users },
-  /*{
   { label: "Contenido", href: "/admin/contenido", icon: ImageIcon },
+  /*{
   { label: "Misiones", href: "/admin/misiones", icon: Star },
     label: "Confirmaciones",
     href: "/admin/confirmaciones",

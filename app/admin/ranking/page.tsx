@@ -64,6 +64,7 @@ export default function RankingAdminPage() {
   const [selectedAbi, setSelectedAbi] = useState<AbiRankingItem | null>(null);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [pageSize, setPageSize] = useState<number>(5);
+  const [photoCount, setPhotoCount] = useState<number>(0);
   const totalPages = Math.max(1, Math.ceil(rankingData.length / pageSize));
   const paginatedRanking = useMemo(() => {
     const start = (currentPage - 1) * pageSize;
@@ -79,17 +80,29 @@ export default function RankingAdminPage() {
     async function fetchRankingData() {
       setIsDataLoading(true);
       try {
-        const [missionsRes, profilesRes, responsesRes] = await Promise.all([
-          supabase
-            .from("missions")
-            .select("id, title, subtitle, week_number, is_active, unlock_date")
-            .order("week_number"),
-          supabase.from("profiles").select("id, abi, points"),
-          supabase
-            .from("user_responses")
-            .select("user_id, mission_id, profiles(abi)"),
-        ]);
+        const [missionsRes, profilesRes, responsesRes, photoCountRes] =
+          await Promise.all([
+            supabase
+              .from("missions")
+              .select(
+                "id, title, subtitle, week_number, is_active, unlock_date",
+              )
+              .order("week_number"),
+            supabase.from("profiles").select("id, abi, points"),
+            supabase
+              .from("user_responses")
+              .select("user_id, mission_id, profiles(abi)"),
+            supabase
+              .from("user_responses")
+              .select("id, missions!inner(week_number)", {
+                count: "exact",
+                head: true,
+              })
+              .eq("missions.week_number", 2)
+              .not("selected_option", "is", null),
+          ]);
         setMissions(missionsRes.data || []);
+        setPhotoCount(photoCountRes.count || 0);
         const profiles = (profilesRes.data || []) as ProfileRow[];
         const responses = (responsesRes.data ||
           []) as unknown as UserResponseRow[];
@@ -175,13 +188,13 @@ export default function RankingAdminPage() {
       {
         id: "photos",
         title: "Fotografías compartidas",
-        value: "0",
+        value: photoCount.toLocaleString("es-CO"),
         icon: Camera,
         iconColor: "text-emerald-600",
         bgColor: "bg-emerald-100/70",
       },
     ],
-    [rankingData, totalParticipants, totalMissionsCompleted],
+    [rankingData, totalParticipants, totalMissionsCompleted, photoCount],
   );
   if (isLoading || profile?.app_role !== "admin") {
     return (
