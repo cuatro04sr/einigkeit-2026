@@ -150,7 +150,12 @@ export default function AdminDashboardPage() {
             loading={isStatsLoading}
           />
         </div>
-        <WallProgressCard />
+        <WallProgressCard
+          registeredProfiles={profilesCount}
+          targetProfiles={2000}
+          missions={missions}
+          loading={isStatsLoading}
+        />
       </div>
     </div>
   );

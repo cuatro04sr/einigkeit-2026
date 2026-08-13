@@ -239,14 +239,65 @@ export interface RecentActivity {
   created_at: string;
 }
 
+export interface RecentActivityTableProps {
+  activities: RecentActivity[];
+  loading?: boolean;
+}
+
 export interface GeoLocation {
   country: string;
   state: string;
   city: string;
+  abi?: string | number;
+  user_count?: number;
 }
 
 export interface GeographicScopeCardProps {
   locations?: GeoLocation[];
   profilesCount: number;
   loading?: boolean;
+}
+
+export interface WallProgressCardProps {
+  registeredProfiles: number;
+  targetProfiles?: number;
+  missions?: Mission[];
+  loading?: boolean;
+}
+
+export interface AlumniTableProps {
+  profiles: Profile[];
+  loading?: boolean;
+}
+
+export interface ProfileLocationData {
+  country: string | null;
+  state: string | null;
+  city: string | null;
+  abi: string | null;
+}
+
+export interface AbiRankingItem {
+  abi: string;
+  participants: number;
+  completedMissions: number;
+  points: number;
+}
+
+export interface UserResponseRow {
+  user_id: string;
+  mission_id: string;
+  profiles: { abi: string | null } | null;
+}
+
+export interface ProfileRow {
+  id: string;
+  abi: string | null;
+  points: number | null;
+}
+
+export interface AbiStats {
+  participantsSet: Set<string>;
+  completedMissionsSet: Set<string>;
+  pointsSum: number;
 }

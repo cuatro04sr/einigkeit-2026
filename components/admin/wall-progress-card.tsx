@@ -1,74 +1,92 @@
 "use client";
 
-import React from "react";
+import { WallProgressCardProps } from "@/types";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ChevronRight } from "lucide-react";
 
-export function WallProgressCard() {
+import { Check, Lock } from "lucide-react";
+import { useMemo } from "react";
+
+export function WallProgressCard({
+  registeredProfiles = 0,
+  targetProfiles = 2000,
+  missions = [],
+  loading = false,
+}: WallProgressCardProps) {
+  const TOTAL_MISSIONS = 8;
+  const { activeWeeks, unlockedCount, percentage } = useMemo(() => {
+    const now = new Date();
+    const active = missions.filter(
+      (m) => m.is_active && new Date(m.unlock_date) <= now,
+    );
+    const activeSet = new Set(active.map((m) => m.week_number));
+    const count = activeSet.size;
+    const pct = Math.round((count / TOTAL_MISSIONS) * 100);
+    return {
+      activeWeeks: activeSet,
+      unlockedCount: count,
+      percentage: pct,
+    };
+  }, [missions]);
+  const missionArray = Array.from({ length: TOTAL_MISSIONS }, (_, i) => i + 1);
   return (
     <Card className="rounded-2xl border-none shadow-sm bg-white p-6 space-y-6">
-      <h3 className="text-lg font-bold text-slate-900">Progreso del muro</h3>
-
-      <div className="flex items-center gap-6">
-        <div className="relative w-32 h-32 shrink-0 flex items-center justify-center">
-          <svg
-            className="w-full h-full transform -rotate-90"
-            viewBox="0 0 36 36"
-          >
-            <path
-              className="text-amber-100"
-              strokeWidth="3.5"
-              stroke="currentColor"
-              fill="none"
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-            />
-            <path
-              className="text-amber-400"
-              strokeDasharray="70, 100"
-              strokeWidth="3.5"
-              strokeLinecap="round"
-              stroke="currentColor"
-              fill="none"
-              d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-            />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-            <span className="text-2xl font-black text-slate-900 leading-none">
-              70%
-            </span>
-            <span className="text-[10px] text-slate-400 font-medium mt-0.5">
-              del objetivo
-            </span>
-          </div>
-        </div>
-
+      <div className="flex items-center justify-between">
         <div>
-          <p className="text-2xl font-black text-slate-900 leading-tight">
-            1.400{" "}
-            <span className="text-sm font-bold text-slate-500">de 2000</span>
-          </p>
-          <p className="text-xs text-slate-400 font-medium mt-1">
-            Exalumnos registrados
+          <h3 className="text-base font-bold text-slate-900">
+            Progreso del Muro
+          </h3>
+          <p className="text-xs font-medium text-slate-500 mt-0.5">
+            Meta global de la comunidad
           </p>
         </div>
+        <span className="text-2xl font-black text-sky-600">
+          {loading ? "--" : `${percentage}%`}
+        </span>
       </div>
-
-      <div className="flex items-center justify-between px-1">
-        {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
-          <span
-            key={num}
-            className="w-7 h-7 rounded-full border border-slate-300 flex items-center justify-center text-xs font-semibold text-slate-700"
-          >
-            {num}
+      <div className="space-y-2">
+        <div className="h-3 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-100">
+          <div
+            className="h-full bg-sky-500 rounded-full transition-all duration-500 ease-out"
+            style={{ width: `${percentage}%` }}
+          />
+        </div>
+        <div className="flex justify-between text-xs font-semibold text-slate-500">
+          <span>{unlockedCount} de 8 misiones activas</span>
+          <span>
+            {registeredProfiles.toLocaleString("es-CO")} /{" "}
+            {targetProfiles.toLocaleString("es-CO")} exalumnos
           </span>
-        ))}
+        </div>
       </div>
-
-      <Button className="w-full bg-red-600 hover:bg-red-700 text-white font-bold h-12 rounded-xl flex items-center justify-center gap-2 shadow-sm transition-colors">
-        <span>Ver muro completo</span>
-        <ChevronRight className="w-4 h-4" />
-      </Button>
+      <div>
+        <p className="text-xs font-bold text-slate-700 mb-3">
+          Semanas de Misiones
+        </p>
+        <div className="grid grid-cols-4 gap-2">
+          {missionArray.map((weekNum) => {
+            const isUnlocked = activeWeeks.has(weekNum);
+            return (
+              <div
+                key={weekNum}
+                className={`flex flex-col items-center justify-center p-3 rounded-xl border text-xs font-bold transition-all ${
+                  isUnlocked
+                    ? "bg-sky-500 border-sky-500 text-white shadow-sm shadow-sky-200"
+                    : "bg-slate-50 border-slate-200 text-slate-400"
+                }`}
+              >
+                <div className="flex items-center gap-1 mb-1">
+                  {isUnlocked ? (
+                    <Check className="w-3.5 h-3.5 stroke-[3]" />
+                  ) : (
+                    <Lock className="w-3 h-3" />
+                  )}
+                </div>
+                <span>Sem {weekNum}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
     </Card>
   );
 }

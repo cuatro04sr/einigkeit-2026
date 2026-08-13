@@ -29,16 +29,17 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 const navItems = [
   { label: "Panel", href: "/admin", icon: Home },
   { label: "Exalumnos", href: "/admin/exalumnos", icon: Users },
+  /*{
   { label: "Contenido", href: "/admin/contenido", icon: ImageIcon },
   { label: "Misiones", href: "/admin/misiones", icon: Star },
-  {
     label: "Confirmaciones",
     href: "/admin/confirmaciones",
     icon: ClipboardCheck,
   },
+  */
   { label: "Ranking", href: "/admin/ranking", icon: TrendingUp },
   { label: "Mapa mundial", href: "/admin/mapa", icon: MapPin },
-  { label: "Configuración", href: "/admin/configuracion", icon: Settings },
+  //{ label: "Configuración", href: "/admin/configuracion", icon: Settings },
 ];
 
 export function AppSidebar() {

@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { RecentActivityTableProps } from "@/types";
+import { Card } from "@/components/ui/card";
 import {
   Table,
   TableBody,
@@ -12,12 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { RecentActivity } from "@/types";
-
-interface RecentActivityTableProps {
-  activities: RecentActivity[];
-  loading?: boolean;
-}
 
 const AVATAR_COLORS = [
   "bg-purple-700",
@@ -56,14 +49,7 @@ export function RecentActivityTable({
     <Card className="rounded-2xl border-none shadow-sm bg-white p-6">
       <div className="flex items-center justify-between pb-4 border-b border-slate-100">
         <h3 className="text-xl font-bold text-slate-900">Actividad reciente</h3>
-        <Button
-          variant="link"
-          className="text-amber-500 font-bold text-xs p-0 h-auto hover:text-amber-600"
-        >
-          Ver todo
-        </Button>
       </div>
-
       <Table>
         <TableHeader>
           <TableRow className="border-none hover:bg-transparent text-slate-400 font-bold text-xs">
@@ -73,7 +59,6 @@ export function RecentActivityTable({
             <TableHead className="text-right">Fecha</TableHead>
           </TableRow>
         </TableHeader>
-
         <TableBody>
           {loading ? (
             Array.from({ length: 4 }).map((_, i) => (
@@ -107,7 +92,6 @@ export function RecentActivityTable({
                 ? item.user_name.charAt(0).toUpperCase()
                 : "?";
               const bgColor = getAvatarColor(item.user_name || "");
-
               return (
                 <TableRow
                   key={item.id}
