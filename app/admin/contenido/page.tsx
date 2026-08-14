@@ -1,18 +1,20 @@
 "use client";
 
 import { useEffect, useState, useMemo, useCallback } from "react";
+import { useRouter } from "next/router";
 import Image from "next/image";
 import { toast } from "sonner";
 import {
-  Check,
-  X,
-  Loader2,
   Image as ImageIcon,
   CheckCircle2,
+  Loader2,
+  Check,
   Clock,
+  X,
 } from "lucide-react";
 
 import { AdminHeader } from "@/components/admin/header";
+import { useAuthStore } from "@/store/useAuthStore";
 import { Mission, ModerationItem } from "@/types";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -21,15 +23,19 @@ import { createClient } from "@/lib/client";
 type ModerationTab = "pending" | "approved";
 
 export default function ModerationPage() {
+  const router = useRouter();
+  const { profile, isLoading } = useAuthStore();
   const [items, setItems] = useState<ModerationItem[]>([]);
   const [missions, setMissions] = useState<Mission[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<ModerationTab>("pending");
-
   const supabase = createClient();
-
-  // Carga inicial de datos paralela
+  useEffect(() => {
+    if (!isLoading && profile?.app_role !== "admin") {
+      router.push("/login");
+    }
+  }, [isLoading, profile, router]);
   useEffect(() => {
     async function fetchPageData() {
       setLoading(true);
@@ -47,11 +53,9 @@ export default function ModerationPage() {
             .in("status", ["pending", "approved"])
             .not("selected_option", "is", null),
         ]);
-
         if (missionsRes.error)
           console.error("Error al cargar misiones:", missionsRes.error);
         else setMissions(missionsRes.data || []);
-
         if (responsesRes.error) {
           toast.error("Error al cargar contenido");
         } else {
@@ -64,18 +68,14 @@ export default function ModerationPage() {
         setLoading(false);
       }
     }
-
     fetchPageData();
   }, [supabase]);
-
-  // Actualización de estado optimizada
   const updateStatus = useCallback(
     async (id: string, status: "approved" | "rejected") => {
       const { error } = await supabase
         .from("user_responses")
         .update({ status })
         .eq("id", id);
-
       if (error) {
         toast.error("No se pudo actualizar el estado");
       } else {
@@ -89,8 +89,6 @@ export default function ModerationPage() {
     },
     [supabase],
   );
-
-  // Conteo dinámico y filtrado eficiente
   const counts = useMemo(
     () => ({
       pending: items.filter((i) => i.status === "pending").length,
@@ -98,11 +96,9 @@ export default function ModerationPage() {
     }),
     [items],
   );
-
   const filteredItems = useMemo(() => {
     return items.filter((i) => i.status === activeTab);
   }, [items, activeTab]);
-
   if (loading) {
     return (
       <div className="flex h-[70vh] w-full items-center justify-center">
@@ -110,7 +106,6 @@ export default function ModerationPage() {
       </div>
     );
   }
-
   return (
     <div className="space-y-8 p-2 max-w-[1400px] mx-auto">
       <AdminHeader
@@ -118,7 +113,6 @@ export default function ModerationPage() {
         searchQuery={searchQuery}
         onSearchChange={setSearchQuery}
       />
-
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight">
@@ -129,8 +123,6 @@ export default function ModerationPage() {
             (Pasa el cursor sobre la tarjeta para ver el texto).
           </p>
         </div>
-
-        {/* Pestañas de Navegación */}
         <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 self-start">
           <TabButton
             active={activeTab === "pending"}
@@ -148,7 +140,6 @@ export default function ModerationPage() {
           />
         </div>
       </div>
-
       {!filteredItems.length ? (
         <Card className="p-12 text-center text-slate-400 border-2 border-dashed rounded-xl shadow-none">
           <ImageIcon className="mx-auto h-12 w-12 mb-2 opacity-50" />
@@ -167,11 +158,9 @@ export default function ModerationPage() {
             const fullName = profile
               ? `${profile.first_name || ""} ${profile.last_name || ""}`.trim()
               : "Anónimo";
-
             return (
               <div key={item.id} className="group h-80 [perspective:1000px]">
                 <div className="relative h-full w-full transition-all duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
-                  {/* Frente (Imagen) */}
                   <div className="absolute inset-0 [backface-visibility:hidden] rounded-xl overflow-hidden shadow-md bg-slate-100 border border-slate-200">
                     <Image
                       src={item.selected_option}
@@ -180,8 +169,6 @@ export default function ModerationPage() {
                       className="object-contain"
                     />
                   </div>
-
-                  {/* Dorso (Contenido y Acciones) */}
                   <div className="absolute inset-0 h-full w-full bg-slate-900 text-white rounded-xl p-6 [transform:rotateY(180deg)] [backface-visibility:hidden] flex flex-col justify-between shadow-lg">
                     <div>
                       <p className="text-xs text-amber-400 font-semibold mb-2 uppercase tracking-wider">
@@ -197,7 +184,6 @@ export default function ModerationPage() {
                         </span>
                       </p>
                     </div>
-
                     <div className="flex gap-2 pt-2">
                       {activeTab === "pending" ? (
                         <>
@@ -236,7 +222,6 @@ export default function ModerationPage() {
   );
 }
 
-// Subcomponente auxiliar para las pestañas para mantener el código DRY y limpio
 function TabButton({
   active,
   onClick,
