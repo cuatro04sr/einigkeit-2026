@@ -2,11 +2,14 @@
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { saveAs } from "file-saver";
 import Image from "next/image";
 import { toast } from "sonner";
+import JSZip from "jszip";
 import {
   Image as ImageIcon,
   CheckCircle2,
+  Download,
   Loader2,
   Check,
   Clock,
@@ -29,12 +32,11 @@ export default function ModerationPage() {
   const [missions, setMissions] = useState<Mission[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [loading, setLoading] = useState(true);
+  const [downloading, setDownloading] = useState(false);
   const [activeTab, setActiveTab] = useState<ModerationTab>("pending");
   const supabase = createClient();
   useEffect(() => {
-    if (!isLoading && profile?.app_role !== "admin") {
-      router.push("/login");
-    }
+    if (!isLoading && profile?.app_role !== "admin") router.push("/login");
   }, [isLoading, profile, router]);
   useEffect(() => {
     async function fetchPageData() {
@@ -44,7 +46,7 @@ export default function ModerationPage() {
           supabase
             .from("missions")
             .select("id, title, subtitle, week_number, is_active, unlock_date")
-            .order("week_number", { ascending: true }),
+            .order("week_number"),
           supabase
             .from("user_responses")
             .select(
@@ -53,16 +55,12 @@ export default function ModerationPage() {
             .in("status", ["pending", "approved"])
             .not("selected_option", "is", null),
         ]);
-        if (missionsRes.error)
-          console.error("Error al cargar misiones:", missionsRes.error);
+        if (missionsRes.error) console.error(missionsRes.error);
         else setMissions(missionsRes.data || []);
-        if (responsesRes.error) {
-          toast.error("Error al cargar contenido");
-        } else {
-          setItems((responsesRes.data as unknown as ModerationItem[]) || []);
-        }
+        if (responsesRes.error) toast.error("Error al cargar contenido");
+        else setItems((responsesRes.data as unknown as ModerationItem[]) || []);
       } catch (err) {
-        console.error("Error inesperado:", err);
+        console.error(err);
         toast.error("Error de conexión");
       } finally {
         setLoading(false);
@@ -76,9 +74,8 @@ export default function ModerationPage() {
         .from("user_responses")
         .update({ status })
         .eq("id", id);
-      if (error) {
-        toast.error("No se pudo actualizar el estado");
-      } else {
+      if (error) toast.error("No se pudo actualizar el estado");
+      else {
         toast.success(
           `Contenido ${status === "approved" ? "aprobado" : "rechazado"}`,
         );
@@ -89,6 +86,42 @@ export default function ModerationPage() {
     },
     [supabase],
   );
+  const handleDownloadZip = async () => {
+    const approved = items.filter(
+      (i) => i.status === "approved" && i.selected_option,
+    );
+    if (!approved.length) return toast.error("No hay imágenes aprobadas");
+    setDownloading(true);
+    const toastId = toast.loading(
+      `Preparando archivo ZIP con ${approved.length} imágenes...`,
+    );
+    try {
+      const zip = new JSZip();
+      const folder = zip.folder("imagenes_aprobadas");
+      for (const [idx, item] of approved.entries()) {
+        const profile = Array.isArray(item.profiles)
+          ? item.profiles[0]
+          : item.profiles;
+        const name =
+          `${profile?.first_name || ""} ${profile?.last_name || ""}`
+            .trim()
+            .replace(/[^a-zA-Z0-9]/g, "_") || "anonimo";
+        const ext =
+          item.selected_option.split(".").pop()?.split("?")[0] || "png";
+        const res = await fetch(item.selected_option);
+        const blob = await res.blob();
+        folder?.file(`aprobado_${idx + 1}_${name}.${ext}`, blob);
+      }
+      const content = await zip.generateAsync({ type: "blob" });
+      saveAs(content, "imagenes_aprobadas.zip");
+      toast.success("¡ZIP descargado con éxito!", { id: toastId });
+    } catch (err) {
+      console.error(err);
+      toast.error("Error al generar el archivo ZIP", { id: toastId });
+    } finally {
+      setDownloading(false);
+    }
+  };
   const counts = useMemo(
     () => ({
       pending: items.filter((i) => i.status === "pending").length,
@@ -96,16 +129,16 @@ export default function ModerationPage() {
     }),
     [items],
   );
-  const filteredItems = useMemo(() => {
-    return items.filter((i) => i.status === activeTab);
-  }, [items, activeTab]);
-  if (loading) {
+  const filteredItems = useMemo(
+    () => items.filter((i) => i.status === activeTab),
+    [items, activeTab],
+  );
+  if (loading)
     return (
-      <div className="flex h-[70vh] w-full items-center justify-center">
+      <div className="flex h-[70vh] items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin text-amber-500" />
       </div>
     );
-  }
   return (
     <div className="space-y-8 p-2 max-w-[1400px] mx-auto">
       <AdminHeader
@@ -119,25 +152,40 @@ export default function ModerationPage() {
             Moderación de <span className="text-amber-400">Fotos</span>
           </h1>
           <p className="text-sm font-medium mt-1 text-slate-500">
-            Gestiona y visualiza las imágenes compartidas por los usuarios.
-            (Pasa el cursor sobre la tarjeta para ver el texto).
+            Gestiona y visualiza las imágenes compartidas.
           </p>
         </div>
-        <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 self-start">
-          <TabButton
-            active={activeTab === "pending"}
-            onClick={() => setActiveTab("pending")}
-            icon={<Clock className="w-4 h-4 text-amber-500" />}
-            label="Pendientes"
-            count={counts.pending}
-          />
-          <TabButton
-            active={activeTab === "approved"}
-            onClick={() => setActiveTab("approved")}
-            icon={<CheckCircle2 className="w-4 h-4 text-emerald-600" />}
-            label="Aprobados"
-            count={counts.approved}
-          />
+        <div className="flex flex-wrap items-center gap-3">
+          {counts.approved > 0 && (
+            <Button
+              onClick={handleDownloadZip}
+              disabled={downloading}
+              className="bg-sky-600 hover:bg-sky-700 text-white cursor-pointer"
+            >
+              {downloading ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Download className="w-4 h-4 mr-2" />
+              )}
+              Descargar ZIP ({counts.approved})
+            </Button>
+          )}
+          <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200">
+            <TabButton
+              active={activeTab === "pending"}
+              onClick={() => setActiveTab("pending")}
+              icon={<Clock className="w-4 h-4 text-amber-500" />}
+              label="Pendientes"
+              count={counts.pending}
+            />
+            <TabButton
+              active={activeTab === "approved"}
+              onClick={() => setActiveTab("approved")}
+              icon={<CheckCircle2 className="w-4 h-4 text-emerald-600" />}
+              label="Aprobados"
+              count={counts.approved}
+            />
+          </div>
         </div>
       </div>
       {!filteredItems.length ? (
@@ -145,8 +193,8 @@ export default function ModerationPage() {
           <ImageIcon className="mx-auto h-12 w-12 mb-2 opacity-50" />
           <p>
             {activeTab === "pending"
-              ? "No hay fotos pendientes de aprobación."
-              : "No hay fotos aprobadas todavía."}
+              ? "No hay fotos pendientes."
+              : "No hay fotos aprobadas."}
           </p>
         </Card>
       ) : (
@@ -155,36 +203,37 @@ export default function ModerationPage() {
             const profile = Array.isArray(item.profiles)
               ? item.profiles[0]
               : item.profiles;
-            const fullName = profile
-              ? `${profile.first_name || ""} ${profile.last_name || ""}`.trim()
-              : "Anónimo";
+            const fullName =
+              `${profile?.first_name || ""} ${profile?.last_name || ""}`.trim() ||
+              "Anónimo";
             return (
               <div key={item.id} className="group h-80 [perspective:1000px]">
                 <div className="relative h-full w-full transition-all duration-500 [transform-style:preserve-3d] group-hover:[transform:rotateY(180deg)]">
                   <div className="absolute inset-0 [backface-visibility:hidden] rounded-xl overflow-hidden shadow-md bg-slate-100 border border-slate-200">
                     <Image
                       src={item.selected_option}
-                      alt="Respuesta del usuario"
+                      alt="Respuesta"
                       fill
                       className="object-contain"
                     />
                   </div>
-                  <div className="absolute inset-0 h-full w-full bg-slate-900 text-white rounded-xl p-6 [transform:rotateY(180deg)] [backface-visibility:hidden] flex flex-col justify-between shadow-lg">
-                    <div>
-                      <p className="text-xs text-amber-400 font-semibold mb-2 uppercase tracking-wider">
-                        Respuesta del usuario:
+
+                  <div className="absolute inset-0 h-full w-full bg-slate-900 text-white rounded-xl p-6 [transform:rotateY(180deg)] [backface-visibility:hidden] flex flex-col justify-between shadow-lg overflow-hidden">
+                    <div className="flex-1 overflow-y-auto pr-1 space-y-3">
+                      <p className="text-xs text-amber-400 font-semibold uppercase tracking-wider sticky top-0 bg-slate-900 py-1 z-10">
+                        Respuesta:
                       </p>
-                      <p className="text-base italic text-slate-200 line-clamp-4">
+                      <p className="text-sm italic text-slate-200 leading-relaxed break-words">
                         &quot;{item.text_answer || "Sin comentario"}&quot;
                       </p>
-                      <p className="mt-4 text-xs font-medium text-slate-400">
+                      <p className="text-xs font-medium text-slate-400 pt-1">
                         Enviado por:{" "}
                         <span className="text-white font-semibold">
                           {fullName}
                         </span>
                       </p>
                     </div>
-                    <div className="flex gap-2 pt-2">
+                    <div className="flex gap-2 pt-3 mt-2 border-t border-slate-800 shrink-0">
                       {activeTab === "pending" ? (
                         <>
                           <Button
@@ -223,11 +272,11 @@ export default function ModerationPage() {
 }
 
 function TabButton({
-  active,
   onClick,
-  icon,
+  active,
   label,
   count,
+  icon,
 }: {
   active: boolean;
   onClick: () => void;
@@ -238,14 +287,9 @@ function TabButton({
   return (
     <button
       onClick={onClick}
-      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${
-        active
-          ? "bg-white text-slate-900 shadow-sm"
-          : "text-slate-500 hover:text-slate-900"
-      }`}
+      className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition-all cursor-pointer ${active ? "bg-white text-slate-900 shadow-sm" : "text-slate-500 hover:text-slate-900"}`}
     >
-      {icon}
-      {label} ({count})
+      {icon} {label} ({count})
     </button>
   );
 }
