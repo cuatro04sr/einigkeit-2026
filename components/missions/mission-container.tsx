@@ -1,6 +1,7 @@
 "use client";
 
 //import { MatchingView } from "@/components/missions/views/matching-view";
+import { WordsearchView } from "@/components/missions/views/wordsearch-view";
 import { PhotoView } from "@/components/missions/views/photo-view";
 import { QuizView } from "@/components/missions/views/quiz-view";
 import { createClient } from "@/lib/client";
@@ -75,6 +76,8 @@ export function MissionContainer({ missionId }: { missionId: string }) {
     case 3:
       return <MatchingView mission={mission} questions={questions} />;
     */
+    case 8:
+      return <WordsearchView mission={mission} question={questions[0]} />;
     default:
       return <div>Tipo de misión no soportado</div>;
   }

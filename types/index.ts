@@ -314,3 +314,16 @@ export interface ModerationItem {
   status: string;
   profiles: { first_name: string | null; last_name: string | null }[] | null;
 }
+
+// --- Mission 8: Wordsearch ---
+
+export interface WordsearchViewProps {
+  mission: Mission;
+  question?: Question;
+}
+
+export interface WordsearchSuccessDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onContinue: () => void;
+}

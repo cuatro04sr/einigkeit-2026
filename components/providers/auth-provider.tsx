@@ -1,23 +1,35 @@
 "use client";
 
 import { useAuthStore } from "@/store/useAuthStore";
-import { createClient } from "@/lib/client";
+import { createClient, IS_MOCK_MODE } from "@/lib/client";
 
 import { useEffect } from "react";
 
-const supabase = createClient();
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setUser, setProfile, setIsLoading, clearAuth } = useAuthStore();
+
   useEffect(() => {
+    // In local dev without Supabase credentials, skip auth entirely.
+    if (IS_MOCK_MODE) {
+      setIsLoading(false);
+      return;
+    }
+
+    const supabase = createClient();
+
     const loadUserProfile = async (userId: string) => {
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
-      if (profile) setProfile(profile);
+      try {
+        const { data: profile } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", userId)
+          .single();
+        if (profile) setProfile(profile);
+      } catch {
+        // swallow profile fetch errors in dev
+      }
     };
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -35,9 +47,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await loadUserProfile(session.user.id);
       setIsLoading(false);
     });
+
     return () => {
       subscription.unsubscribe();
     };
   }, [clearAuth, setIsLoading, setProfile, setUser]);
+
   return <>{children}</>;
 }
