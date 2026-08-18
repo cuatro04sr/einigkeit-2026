@@ -1,0 +1,200 @@
+"use client";
+
+import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import Link from "next/link";
+import Image from "next/image";
+import { ArrowLeft, ArrowRight, Send } from "lucide-react";
+
+import { PuzzleGame } from "@/components/jigsaw/PuzzleGame";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { JIGSAW_PIECES, JIGSAW_REFLECTION_QUESTION, JIGSAW_SHARE_PLACEHOLDER } from "@/constants/mission-7";
+import { MascotCallout } from "@/components/shared/mascot-callout";
+import { MascotDialog } from "@/components/shared/mascot-dialog";
+
+type Phase = "game" | "share" | "wall";
+
+const BG = {
+    mobile: "/bg-mobile-white.png",
+    game: "/backgrounds/mission/mision 7- juego BG.png",
+    congrats: "/backgrounds/mission/mision 7- felicitaciones BG.png",
+    wall: "/backgrounds/mission/docs/mission 7-rompecabezas pantallas/mision 7-solo muro.png",
+} as const;
+
+function bgStyle(src: string): React.CSSProperties {
+    return {
+        backgroundImage: `url("${encodeURI(src)}")`,
+        backgroundSize: "cover",
+        backgroundPosition: "center bottom", // Keeps the rocks visible at the bottom of the screen
+        backgroundRepeat: "no-repeat",
+    };
+}
+
+export function JigsawView({ mission, question }: { mission: any; question?: any }) {
+    const router = useRouter();
+
+    const [showSuccessModal, setShowSuccessModal] = useState(false);
+    const [phase, setPhase] = useState<Phase>("game");
+    const [shareText, setShareText] = useState("");
+    const [submitting, setSubmitting] = useState(false);
+
+    const handleWin = useCallback(() => {
+        setShowSuccessModal(true);
+    }, []);
+
+    const handleSuccessContinue = useCallback(() => {
+        setShowSuccessModal(false);
+        setPhase("share");
+    }, []);
+
+    const handleFinalSubmit = useCallback(async () => {
+        if (!shareText.trim()) {
+            toast.error("Por favor escribe tu reflexión antes de continuar");
+            return;
+        }
+
+        // Mock success directly since we dont use Supabase
+        setSubmitting(true);
+        setTimeout(() => {
+            toast.success("¡Misión completada con éxito!");
+            setPhase("wall");
+            setSubmitting(false);
+        }, 800);
+    }, [shareText]);
+
+    // ══════════════════════════════════════════════════════════
+    // PHASE: WALL (Muro Final)
+    // ══════════════════════════════════════════════════════════
+    if (phase === "wall") {
+        return (
+            <div className="w-full min-h-[calc(100dvh-4rem)] bg-slate-50 flex flex-col items-center px-4 sm:px-8 py-10 gap-8">
+                <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight text-center">
+                    Misión {mission.week_number}: Completada
+                </h1>
+
+                <Card className="w-full max-w-5xl rounded-3xl overflow-hidden shadow-lg border-none bg-white p-0">
+                    <CardContent className="p-0">
+                        <div className="relative w-full aspect-[21/9]">
+                            <Image
+                                src={BG.wall}
+                                alt="Muro final misión 7"
+                                fill
+                                sizes="(max-width: 640px) 100vw, (max-width: 1280px) 90vw, 1200px"
+                                className="object-cover object-center"
+                                priority
+                            />
+                        </div>
+                        <div className="w-full p-6 sm:p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
+                            <h2 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-red-600 text-center sm:text-left leading-snug tracking-tight max-w-3xl">
+                                Una última misión nos separa de la reunificación.
+                            </h2>
+                            <Button onClick={() => router.push("/")} size="lg" className="bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl px-8 py-6 shadow-md flex items-center gap-3 shrink-0 text-lg transition-transform hover:scale-105">
+                                <span>Continuar</span><ArrowRight className="w-5 h-5" />
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
+        );
+    }
+
+    // ══════════════════════════════════════════════════════════
+    // PHASE: SHARE (Pantallas 5 y 6)
+    // ══════════════════════════════════════════════════════════
+    if (phase === "share") {
+        const hasText = shareText.trim().length > 0;
+        return (
+            <>
+                <div className="absolute inset-0 -z-10 pointer-events-none hidden lg:block" style={bgStyle(BG.congrats)} />
+                <div className="absolute inset-0 -z-10 pointer-events-none lg:hidden bg-white" />
+
+                <div className="w-full lg:h-[calc(100dvh-4rem)] flex flex-col lg:flex-row overflow-hidden">
+                    {/* LEFT COLUMN: Form */}
+                    <div className="flex-1 flex flex-col gap-4 px-4 sm:px-8 py-4 overflow-y-auto">
+                        <div className="flex items-center gap-3 shrink-0">
+                            <Button onClick={() => setPhase("game")} variant="destructive" size="icon" className="w-9 h-9 rounded-xl bg-red-600 hover:bg-red-700 shrink-0">
+                                <ArrowLeft className="w-4 h-4 text-white" />
+                            </Button>
+                            <div className="flex items-center gap-2 text-sm font-bold">
+                                <span className="text-blue-600">Misión {mission.week_number}</span>
+                                <span className="text-slate-300">•</span>
+                                <span className="text-slate-500 font-normal">Rompecabezas</span>
+                            </div>
+                        </div>
+
+                        <div className="flex items-start gap-3 shrink-0">
+                            <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0 mt-0.5 text-lg">✦</div>
+                            <div>
+                                <h1 className="text-xl sm:text-2xl lg:text-3xl font-extrabold text-slate-900 leading-tight tracking-tight">
+                                    ¡Gran trabajo armando los recuerdos!
+                                </h1>
+                                <p className="text-sm sm:text-base text-slate-500 mt-1">
+                                    Con cada pieza, fortalecemos nuestra Einigkeit. Reflexionemos juntos:
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex-1 flex flex-col min-h-0">
+                            <div className="border border-slate-200 rounded-2xl bg-white overflow-hidden flex-1 flex flex-col shadow-sm p-4 gap-3">
+                                <h2 className="font-bold text-slate-900">{JIGSAW_REFLECTION_QUESTION}</h2>
+                                <p className="text-sm text-slate-500">
+                                    {question?.question_text ?? "¿Qué momento memorable te trae a la mente esta imagen completada?"}
+                                </p>
+                                <Textarea
+                                    value={shareText}
+                                    onChange={(e) => setShareText(e.target.value)}
+                                    placeholder={JIGSAW_SHARE_PLACEHOLDER}
+                                    className="flex-1 min-h-[160px] border-slate-200 resize-none rounded-xl p-3 text-sm placeholder:text-slate-400 focus-visible:ring-1 focus-visible:ring-offset-0"
+                                />
+                            </div>
+                        </div>
+
+                        <Card className="shrink-0 bg-white/95 border-slate-200/60 rounded-2xl shadow-sm py-0 mt-2">
+                            <CardContent className="flex items-center justify-between p-3 sm:p-4 gap-3">
+                                <Button asChild size="lg" variant="outline" className="rounded-full border-red-400 bg-white text-red-600 hover:bg-red-50 font-medium px-4 sm:px-5 shadow-none shrink-0">
+                                    <Link href="/"><ArrowLeft className="w-4 h-4 mr-2" />Salir de la misión</Link>
+                                </Button>
+                                <Button
+                                    onClick={handleFinalSubmit}
+                                    size="lg"
+                                    disabled={!hasText || submitting}
+                                    className={cn("rounded-xl font-medium px-5 flex items-center gap-2 shadow-none shrink-0 transition-colors", hasText ? "bg-blue-600 hover:bg-blue-700 text-white" : "bg-slate-300 text-slate-500")}
+                                >
+                                    <span>{submitting ? "Guardando..." : "Finalizar misión"}</span>
+                                    {!submitting && <span className="text-base">✓</span>}
+                                </Button>
+                            </CardContent>
+                        </Card>
+                    </div>
+
+                    {/* RIGHT COLUMN: Mascot */}
+                    <div className="hidden lg:flex lg:w-[380px] shrink-0 flex-col items-center justify-end relative">
+                        <div className="absolute top-[20%] left-0 z-0 hidden xl:block">
+                            <div className="relative bg-[#FFF8E7] rounded-2xl px-5 py-3 shadow-md max-w-[180px]">
+                                <p className="text-slate-900 font-bold text-base leading-tight">Compártenos</p>
+                                <p className="text-red-600 font-bold text-base leading-tight">tu respuesta</p>
+                                <span className="absolute -bottom-3 left-10 w-0 h-0 border-l-[12px] border-r-[12px] border-t-[12px] border-transparent border-t-[#FFF8E7]" />
+                            </div>
+                        </div>
+                        <div className="relative w-full h-[80%] max-h-[calc(100dvh-4rem)] z-10">
+                            <Image
+                                src="/mascot/mission 7- otto- respuestas escritas.png"
+                                alt="Otto pidiendo respuestas escritas"
+                                fill
+                                sizes="(max-width: 1280px) 360px, 420px"
+                                className="object-contain object-bottom"
+                                priority
+                            />
+                        </div>
+                    </div>
+                </div>
+            </>
+        );
+    }
+
+    // ══════════════════════════════════════════════════════════
+    

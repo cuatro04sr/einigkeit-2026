@@ -1,15 +1,21 @@
 "use client";
 
 import { useAuthStore } from "@/store/useAuthStore";
-import { createClient } from "@/lib/client";
-
+import { createClient, IS_MOCK_MODE } from "@/lib/client";
 import { useEffect } from "react";
-
-const supabase = createClient();
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const { setUser, setProfile, setIsLoading, clearAuth } = useAuthStore();
+
   useEffect(() => {
+    // Escapar rápido si estamos en MOCK_MODE (para poder pre-visualizar misiones)
+    if (IS_MOCK_MODE) {
+      setIsLoading(false);
+      return;
+    }
+
+    const supabase = createClient();
+
     const loadUserProfile = async (userId: string) => {
       const { data: profile } = await supabase
         .from("profiles")
@@ -18,6 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         .single();
       if (profile) setProfile(profile);
     };
+
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
@@ -35,9 +42,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       await loadUserProfile(session.user.id);
       setIsLoading(false);
     });
+
     return () => {
       subscription.unsubscribe();
     };
   }, [clearAuth, setIsLoading, setProfile, setUser]);
+
   return <>{children}</>;
 }

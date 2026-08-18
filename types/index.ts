@@ -103,6 +103,7 @@ export interface MascotDialogProps {
   title: string;
   imageSrc: string;
   imageAlt?: string;
+  bgImageSrc?: string;
   children: ReactNode;
 }
 

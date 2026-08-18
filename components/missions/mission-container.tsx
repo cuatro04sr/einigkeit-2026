@@ -3,6 +3,7 @@
 //import { MatchingView } from "@/components/missions/views/matching-view";
 import { PhotoView } from "@/components/missions/views/photo-view";
 import { QuizView } from "@/components/missions/views/quiz-view";
+import { JigsawView } from "@/components/missions/views/jigsaw-view";
 import { createClient } from "@/lib/client";
 import { Mission, Question } from "@/types";
 
@@ -12,11 +13,22 @@ import { toast } from "sonner";
 
 const supabase = createClient();
 
-export function MissionContainer({ missionId }: { missionId: string }) {
-  const [mission, setMission] = useState<Mission | null>(null);
-  const [questions, setQuestions] = useState<Question[]>([]);
-  const [loading, setLoading] = useState(true);
+export function MissionContainer({
+  missionId,
+  initialMission,
+  initialQuestions,
+}: {
+  missionId: string;
+  initialMission?: Mission;
+  initialQuestions?: Question[];
+}) {
+  const [mission, setMission] = useState<Mission | null>(initialMission || null);
+  const [questions, setQuestions] = useState<Question[]>(initialQuestions || []);
+  const [loading, setLoading] = useState(!initialMission);
+
   useEffect(() => {
+    if (initialMission) return; // Si ya vienen los datos pasados directamente (ej. mock app), no hace fetch
+
     async function fetchMissionData() {
       try {
         setLoading(true);
@@ -75,6 +87,14 @@ export function MissionContainer({ missionId }: { missionId: string }) {
     case 3:
       return <MatchingView mission={mission} questions={questions} />;
     */
+    case 4:
+      return <div>Trivia / Ahorcado (Semana 4)</div>;
+    case 5:
+      return <div>Ruleta (Semana 5)</div>;
+    case 6:
+      return <div>Trivial (Semana 6)</div>;
+    case 7:
+      return <JigsawView mission={mission} question={questions[0]} />;
     default:
       return <div>Tipo de misión no soportado</div>;
   }
