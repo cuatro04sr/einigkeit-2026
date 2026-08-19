@@ -24,9 +24,10 @@ export function PuzzleGame({ pieces, onWin }: PuzzleGameProps) {
     // Detectar victoria o limpiar errores
     useEffect(() => {
         if (state.status === 'won') {
+            // Se quitó el delay largo para que el modal y la música salgan inmediatamente
             const t = setTimeout(() => {
                 onWin?.();
-            }, 1500);
+            }, 100);
             return () => clearTimeout(t);
         }
     }, [state.status, onWin]);

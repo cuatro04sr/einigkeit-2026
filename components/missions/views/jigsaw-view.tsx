@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -42,13 +42,33 @@ export function JigsawView({ mission, question }: { mission: any; question?: any
     const [shareText, setShareText] = useState("");
     const [submitting, setSubmitting] = useState(false);
 
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    // Detener el audio cuando se sale de la vista
+    useEffect(() => {
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+            }
+        };
+    }, []);
+
     const handleWin = useCallback(() => {
         setShowSuccessModal(true);
+        if (!audioRef.current) {
+            audioRef.current = new Audio("/backgrounds/mission/docs/musica/mission 7-WindOfChange.mp3");
+            audioRef.current.volume = 0.5;
+        }
+        audioRef.current.currentTime = 0;
+        audioRef.current.play().catch(e => console.error("Auto-play blocked:", e));
     }, []);
 
     const handleSuccessContinue = useCallback(() => {
         setShowSuccessModal(false);
         setPhase("share");
+        if (audioRef.current) {
+            audioRef.current.pause();
+        }
     }, []);
 
     const handleFinalSubmit = useCallback(async () => {
@@ -250,7 +270,7 @@ export function JigsawView({ mission, question }: { mission: any; question?: any
                 <div className="flex-1 flex flex-col items-center min-h-0 w-full">
                     <div className="w-full max-w-[1600px] px-3 sm:px-4 lg:px-12 flex flex-col h-full min-h-0">
                         {/* Scroll container that avoids overlapping banner */}
-                        <div className="flex-1 overflow-y-auto lg:overflow-visible min-h-0 w-full flex flex-col pb-2 shrink lg:pr-0">
+                        <div className="flex-1 overflow-y-auto min-h-0 w-full flex flex-col pb-2 shrink lg:pr-0 custom-scrollbar">
                             {/* Headers */}
                             <div className="flex flex-col gap-2 lg:gap-4 shrink-0 mb-2 lg:mb-6 w-full">
                                 <div className="flex items-center gap-2 lg:gap-3">
@@ -268,8 +288,8 @@ export function JigsawView({ mission, question }: { mission: any; question?: any
                                         <span className="text-[#0E8A38] text-lg lg:text-2xl font-bold">☺</span>
                                     </div>
                                     <div className="flex flex-col">
-                                        <h1 className="text-xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">Completa el rompecabezas,</h1>
-                                        <p className="text-slate-600 text-[13px] sm:text-sm lg:text-xl font-medium mt-0 lg:mt-1 leading-snug">
+                                        <h1 className="text-xl lg:text-3xl xl:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">Completa el rompecabezas,</h1>
+                                        <p className="text-slate-600 text-[13px] sm:text-sm lg:text-lg font-medium mt-0 lg:mt-1 leading-snug">
                                             Selecciona con click la pieza y haz click sobre el tablero, si es la ficha correcta, aparecerá. Si no es la ficha correcta, inténtalo con otra ficha.
                                         </p>
                                     </div>
@@ -284,7 +304,7 @@ export function JigsawView({ mission, question }: { mission: any; question?: any
                                     </div>
 
                                     {/* Otto Mascot next to the tray */}
-                                    <div className="relative w-[160px] h-[160px] sm:w-[220px] sm:h-[220px] lg:w-[320px] lg:h-full shrink-0 mx-auto lg:mx-0 lg:-ml-4 z-20 mt-4 lg:mt-0 lg:mb-0">
+                                    <div className="relative w-[160px] h-[160px] sm:w-[220px] sm:h-[220px] lg:w-[220px] lg:h-full shrink-0 mx-auto lg:mx-0 lg:-ml-4 z-20 mt-4 lg:mt-0 lg:mb-0">
                                         <Image
                                             src="/mascot/mision 7-otto juego rompecabezas.png"
                                             alt="Otto"
@@ -297,8 +317,8 @@ export function JigsawView({ mission, question }: { mission: any; question?: any
                         </div>
 
                         {/* Banner de Salida en la parte inferior */}
-                        <div className="w-full bg-[#FFF8E7]/90 border border-[#F0EBE1] backdrop-blur-sm rounded-2xl p-2 sm:p-3 lg:p-4 flex items-center z-20 mt-auto shrink-0 mb-2 lg:mb-4 xl:mb-8 sticky bottom-0">
-                            <Button asChild size="lg" variant="outline" className="rounded-full border-red-400 bg-white text-red-600 hover:bg-red-50 hover:text-red-700 font-semibold px-4 lg:px-6 py-2 lg:py-5 shadow-sm shrink-0 w-full sm:w-auto h-auto">
+                        <div className="w-full bg-[#FFF8E7]/90 border border-[#F0EBE1] backdrop-blur-sm rounded-xl lg:rounded-2xl p-2 sm:p-3 lg:p-3 flex items-center z-20 mt-auto shrink-0 mb-1 lg:mb-3 sticky bottom-0">
+                            <Button asChild size="lg" variant="outline" className="rounded-xl lg:rounded-full border-red-400 bg-white text-red-600 hover:bg-red-50 hover:text-red-700 font-semibold px-4 lg:px-6 py-2 lg:py-3 shadow-sm shrink-0 w-full sm:w-auto h-auto">
                                 <Link href="/" className="flex items-center justify-center w-full"><ArrowLeft className="w-4 h-4 lg:w-5 lg:h-5 mr-2 lg:mr-3" />Salir de la misión</Link>
                             </Button>
                         </div>
