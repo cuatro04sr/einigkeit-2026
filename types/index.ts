@@ -314,3 +314,22 @@ export interface ModerationItem {
   status: string;
   profiles: { first_name: string | null; last_name: string | null }[] | null;
 }
+
+export interface MemoryCard {
+  uniqueId: string;
+  pairId: string;
+  type: "image" | "text";
+  content: string;
+}
+
+export interface RawPair {
+  id: string;
+  image: string;
+  text: string;
+}
+
+export interface CrosswordOption {
+  id: number;
+  answer: string;
+  clue: string;
+}

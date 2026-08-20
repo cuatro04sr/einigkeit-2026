@@ -1,6 +1,7 @@
 "use client";
 
-//import { MatchingView } from "@/components/missions/views/matching-view";
+import { CrosswordView } from "@/components/missions/views/crossword-view";
+import { MemoryView } from "@/components/missions/views/memory-view";
 import { PhotoView } from "@/components/missions/views/photo-view";
 import { QuizView } from "@/components/missions/views/quiz-view";
 import { createClient } from "@/lib/client";
@@ -59,7 +60,6 @@ export function MissionContainer({ missionId }: { missionId: string }) {
   const surveyQuestion = questions.find((q) =>
     q.question_type?.startsWith("survey_"),
   );
-  console.log(questions, mission);
   switch (mission.week_number) {
     case 1:
       return (
@@ -71,10 +71,22 @@ export function MissionContainer({ missionId }: { missionId: string }) {
       );
     case 2:
       return <PhotoView mission={mission} question={questions[0]} />;
-    /*
     case 3:
-      return <MatchingView mission={mission} questions={questions} />;
-    */
+      return (
+        <MemoryView
+          mission={mission}
+          questions={questions}
+          surveyQuestion={surveyQuestion}
+        />
+      );
+    case 4:
+      return (
+        <CrosswordView
+          mission={mission}
+          questions={questions}
+          surveyQuestion={surveyQuestion}
+        />
+      );
     default:
       return <div>Tipo de misión no soportado</div>;
   }
