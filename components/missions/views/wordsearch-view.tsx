@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useReducer, useState } from "react";
+import { useCallback, useEffect, useReducer, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import Link from "next/link";
@@ -61,16 +61,45 @@ export function WordsearchView({ mission, question }: WordsearchViewProps) {
     const totalWords = words.length;
     const allFound = status === "won";
 
+    const audioRef = useRef<HTMLAudioElement | null>(null);
+
+    // Detener el audio cuando se sale de la vista
+    useEffect(() => {
+        return () => {
+            if (audioRef.current) {
+                audioRef.current.pause();
+            }
+        };
+    }, []);
+
+    const playSuccessAudio = useCallback(() => {
+        if (!audioRef.current) {
+            audioRef.current = new Audio("/docs/mission-8/musica/mission 8- rasputin.mp3");
+            audioRef.current.volume = 0.5;
+        }
+        // Solo reproducir desde cero si estaba pausado o terminó (evitar saltos feos si ya está sonando)
+        if (audioRef.current.paused) {
+            audioRef.current.currentTime = 0;
+            audioRef.current.play().catch(e => console.error("Auto-play blocked:", e));
+        }
+    }, []);
+
     useEffect(() => {
         if (status === "won") {
-            const t = setTimeout(() => setShowSuccessModal(true), 400);
+            const t = setTimeout(() => {
+                setShowSuccessModal(true);
+                playSuccessAudio();
+            }, 100);
             return () => clearTimeout(t);
         }
-    }, [status]);
+    }, [status, playSuccessAudio]);
 
     const handleSuccessContinue = useCallback(() => {
         setShowSuccessModal(false);
         setPhase("share");
+        if (audioRef.current) {
+            audioRef.current.pause();
+        }
     }, []);
 
     const handleFinalSubmit = useCallback(async () => {
@@ -343,7 +372,7 @@ export function WordsearchView({ mission, question }: WordsearchViewProps) {
                     </div>
                     <div>
                         <h1 className="text-lg sm:text-xl font-extrabold text-slate-900 leading-tight">Sopa de letras</h1>
-                        <p className="text-xs text-slate-500">Completa la sopa de letras, encuentra las {totalWords} palabras ocultas.</p>
+                        <p className="text-xs text-slate-500">Encuentra las {totalWords} palabras ocultas.Desliza desde la primera letra hasta la última sin soltar.</p>
                     </div>
                 </div>
 
@@ -360,10 +389,10 @@ export function WordsearchView({ mission, question }: WordsearchViewProps) {
                     </div>
 
                     {/* Right column: word list + Otto */}
-                    <div className="flex flex-col justify-between lg:w-56 xl:w-64 shrink-0">
+                    <div className="flex flex-row lg:flex-col justify-between gap-4 lg:gap-0 lg:w-56 xl:w-64 shrink-0">
 
                         {/* Word list — vertical, clean typography */}
-                        <div className="bg-white/80 rounded-2xl p-4 flex flex-col gap-2">
+                        <div className="flex-1 lg:flex-none bg-white/80 rounded-2xl p-4 flex flex-col gap-2">
                             {[...words]
                                 .sort((a, b) => a.displayOrder - b.displayOrder)
                                 .map((w) => {
@@ -382,8 +411,8 @@ export function WordsearchView({ mission, question }: WordsearchViewProps) {
                                 })}
                         </div>
 
-                        {/* Otto mascot — bottom of right column, desktop only */}
-                        <div className="hidden lg:block relative shrink-0 h-52 xl:h-64 mt-2">
+                        {/* Otto mascot — side by side on mobile, bottom of right column on desktop */}
+                        <div className="relative shrink-0 w-32 h-36 sm:w-40 sm:h-48 lg:w-auto lg:h-48 xl:h-60 mt-auto mb-0 lg:mb-4 xl:mb-6">
                             <Image
                                 src="/mascot/Juego crossword Otto.png"
                                 alt="Otto ASODECA"
@@ -408,7 +437,7 @@ export function WordsearchView({ mission, question }: WordsearchViewProps) {
                         {/* Desktop: counter text, shows Continuar when done */}
                         <div className="hidden lg:block">
                             {allFound ? (
-                                <Button onClick={() => setShowSuccessModal(true)} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl px-5 py-2.5 flex items-center gap-2 shadow-sm">
+                                <Button onClick={() => { setShowSuccessModal(true); playSuccessAudio(); }} className="bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-2xl px-5 py-2.5 flex items-center gap-2 shadow-sm">
                                     <span>Continuar</span><ArrowRight className="w-4 h-4" />
                                 </Button>
                             ) : (
@@ -421,7 +450,7 @@ export function WordsearchView({ mission, question }: WordsearchViewProps) {
                         {/* Mobile: Continuar button (disabled until done) */}
                         <div className="lg:hidden">
                             <Button
-                                onClick={() => setShowSuccessModal(true)}
+                                onClick={() => { setShowSuccessModal(true); playSuccessAudio(); }}
                                 disabled={!allFound}
                                 size="lg"
                                 className={cn(
