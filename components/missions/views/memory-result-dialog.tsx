@@ -2,15 +2,17 @@
 
 import { MascotDialog } from "@/components/shared/mascot-dialog";
 import { Button } from "@/components/ui/button";
+
 import { RotateCcw, ArrowRight, Loader2 } from "lucide-react";
+import { useEffect, useRef } from "react";
 
 interface MemoryResultDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  isSuccess: boolean; // true si completó todos los pares, false si se acabó el tiempo
-  earnedPoints: number; // Será 10 si es éxito, 0 si falló
+  isSuccess: boolean;
+  earnedPoints: number;
   onRetry: () => void;
-  onContinue?: () => void; // Opcional porque en timeout no existe
+  onContinue?: () => void;
   submitting?: boolean;
 }
 
@@ -18,16 +20,33 @@ export function MemoryResultDialog({
   open,
   onOpenChange,
   isSuccess,
-  earnedPoints,
   onRetry,
   onContinue,
   submitting = false,
 }: MemoryResultDialogProps) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  useEffect(() => {
+    if (!audioRef.current)
+      audioRef.current = new Audio("/missions/m3/luftballons.mp3");
+    if (open && isSuccess) {
+      audioRef.current
+        .play()
+        .catch((e) => console.log("Audio autoplay prevented", e));
+    } else {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    };
+  }, [open, isSuccess]);
   const title = isSuccess ? "¡Felicidades!" : "¡Se acabó el tiempo!";
   const imageSrc = isSuccess
-    ? "/mascot/otto-happy.png"
+    ? "/mascot/otto-cards-dialog.png"
     : "/mascot/otto-sad.png";
-
   return (
     <MascotDialog
       open={open}
@@ -40,7 +59,6 @@ export function MemoryResultDialog({
         <h2 className="text-3xl sm:text-4xl font-extrabold text-red-600 tracking-tight leading-none">
           {title}
         </h2>
-
         <p className="text-base sm:text-lg text-slate-800 font-medium leading-snug">
           {isSuccess ? (
             <>
@@ -56,7 +74,6 @@ export function MemoryResultDialog({
             </>
           )}
         </p>
-
         <div className="flex flex-col gap-2 mt-3 w-full max-w-sm">
           {isSuccess && onContinue && (
             <Button
@@ -74,7 +91,6 @@ export function MemoryResultDialog({
               )}
             </Button>
           )}
-
           {!isSuccess && (
             <Button
               size="lg"
