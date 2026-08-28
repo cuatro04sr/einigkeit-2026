@@ -34,13 +34,6 @@ export function VerifyEmailDialog({
         </p>
         <div className="flex flex-col sm:flex-row gap-3 mt-4">
           <Button
-            onClick={() => window.open("https://mail.google.com", "_blank")}
-            className="h-12 px-5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl text-sm sm:text-base transition-all flex items-center justify-center gap-2 shadow-md w-full sm:w-auto"
-          >
-            Ir a mi correo
-            <MailCheck className="h-5 w-5" />
-          </Button>
-          <Button
             variant="outline"
             onClick={() => onOpenChange(false)}
             className="h-12 px-5 border-slate-300 text-slate-700 hover:bg-slate-100 font-bold rounded-xl text-sm sm:text-base transition-all w-full sm:w-auto"
