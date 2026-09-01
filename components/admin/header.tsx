@@ -37,17 +37,14 @@ export function AdminHeader({
       const dateStamp = new Date().toISOString().slice(0, 10);
       const filename = `reporte_einigkeit_${selectedMission}_${dateStamp}.csv`;
       if (selectedMission === "todas") {
-        const { data, error } = await supabase
-          .from("profiles")
-          .select(
-            "id, first_name, last_name, abi, whatsapp, country, state, city, points, app_role, created_at",
-          );
+        const { data, error } = await supabase.rpc("get_profiles_with_email");
         if (error) throw error;
-        const profiles = (data ?? []) as Profile[];
+        const profiles = (data ?? []) as (Profile & { email?: string })[];
         exportPayload = profiles.map((p) => ({
           "ID Usuario": p.id,
           Nombre: p.first_name,
           Apellido: p.last_name,
+          Email: p.email || "N/A",
           "Promoción (ABI)": p.abi,
           WhatsApp: p.whatsapp,
           País: p.country,
@@ -58,6 +55,38 @@ export function AdminHeader({
           "Fecha Registro": p.created_at
             ? new Date(p.created_at).toLocaleString()
             : "N/A",
+        }));
+      } else if (selectedMission === "todas_las_misiones") {
+        const { data, error } = await supabase.from("user_responses").select(
+          `
+            id,
+            created_at,
+            selected_option,
+            text_answer,
+            is_correct,
+            points_earned,
+            profiles (first_name, last_name, abi, whatsapp, country, city),
+            missions (title, week_number),
+            questions (question_text, question_type)
+          `,
+        );
+        if (error) throw error;
+        const responses = (data ??
+          []) as unknown as MissionResponseJoinedRecord[];
+        exportPayload = responses.map((r) => ({
+          "Fecha Respuesta": new Date(r.created_at).toLocaleString(),
+          "Semana Misión": r.missions?.week_number ?? "N/A",
+          Misión: r.missions?.title ?? "N/A",
+          Exalumno:
+            `${r.profiles?.first_name ?? ""} ${r.profiles?.last_name ?? ""}`.trim(),
+          "ABI (Promoción)": r.profiles?.abi ?? "N/A",
+          WhatsApp: r.profiles?.whatsapp ?? "N/A",
+          Ubicación: `${r.profiles?.city ?? ""}, ${r.profiles?.country ?? ""}`,
+          Pregunta: r.questions?.question_text ?? "N/A",
+          "Opción Seleccionada": r.selected_option,
+          "Respuesta Texto": r.text_answer || "N/A",
+          "¿Es Correcta?": r.is_correct ? "Sí" : "No",
+          "Puntos Ganados": r.points_earned,
         }));
       } else {
         const { data, error } = await supabase
@@ -136,6 +165,9 @@ export function AdminHeader({
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="todas">Global (Usuarios)</SelectItem>
+            <SelectItem value="todas_las_misiones">
+              Todas las misiones
+            </SelectItem>
             {missions.map((m) => (
               <SelectItem key={m.id} value={m.id}>
                 Misión {m.week_number}: {m.title}
