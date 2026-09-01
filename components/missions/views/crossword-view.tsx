@@ -223,7 +223,7 @@ export function CrosswordView({
           user_id: user.id,
           mission_id: mission.id,
           question_id: surveyQuestion?.id || null,
-          selected_option: imageUrl,
+          selected_option: imageUrl ? imageUrl : "N/A",
           text_answer: surveyText.trim(),
           is_correct: null,
           status: "pending",
