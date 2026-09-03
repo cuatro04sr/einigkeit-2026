@@ -21,6 +21,7 @@ import {
   Gift,
   Star,
 } from "lucide-react";
+import { InviteDialog } from "../invite-dialog";
 
 export function InviteView({ mission, questions }: InviteViewProps) {
   const { user } = useAuthStore();
@@ -35,6 +36,7 @@ export function InviteView({ mission, questions }: InviteViewProps) {
   const [loadingCode, setLoadingCode] = useState(true);
   const [copied, setCopied] = useState(false);
   const [acceptedCount, setAcceptedCount] = useState<number>(0);
+  const [showResultModal, setShowResultModal] = useState(false);
   useEffect(() => {
     async function fetchOrGenerateCode() {
       if (!user || !question) return;
@@ -98,6 +100,7 @@ export function InviteView({ mission, questions }: InviteViewProps) {
     setCopied(true);
     toast.success("¡Enlace copiado al portapapeles!");
     setTimeout(() => setCopied(false), 3000);
+    setShowResultModal(true);
   }, [inviteLink]);
   const handleShare = useCallback(async () => {
     if (navigator.share) {
@@ -113,6 +116,7 @@ export function InviteView({ mission, questions }: InviteViewProps) {
     } else {
       handleCopyCode();
     }
+    setShowResultModal(true);
   }, [inviteLink, handleCopyCode]);
   return (
     <>
@@ -289,6 +293,14 @@ export function InviteView({ mission, questions }: InviteViewProps) {
             </Button>
           </CardContent>
         </Card>
+        <InviteDialog
+          open={showResultModal}
+          onOpenChange={setShowResultModal}
+          pointsEarned={existingResponse?.points_earned || 0}
+          onContinue={() => {
+            setShowResultModal(false);
+          }}
+        />
       </div>
     </>
   );
