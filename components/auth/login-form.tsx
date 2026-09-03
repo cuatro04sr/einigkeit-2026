@@ -49,6 +49,10 @@ export default function LoginForm() {
           .select("app_role")
           .eq("id", authData.user.id)
           .single();
+        const pendingCode = localStorage.getItem("pending_invite_code");
+        if (pendingCode) {
+          router.push(`/invita/${pendingCode}`);
+        }
         router.push(profile?.app_role === "admin" ? "/admin" : "/");
       })(),
       {

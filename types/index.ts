@@ -181,6 +181,11 @@ export interface QuizViewProps {
   surveyQuestion: Question | undefined;
 }
 
+export interface InviteViewProps {
+  mission: Mission;
+  questions: Question[];
+}
+
 export type UserResponsePayload = {
   user_id: string;
   mission_id: string;

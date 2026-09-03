@@ -2,6 +2,7 @@
 
 import { CrosswordView } from "@/components/missions/views/crossword-view";
 import { MemoryView } from "@/components/missions/views/memory-view";
+import { InviteView } from "@/components/missions/views/invite-view";
 import { PhotoView } from "@/components/missions/views/photo-view";
 import { QuizView } from "@/components/missions/views/quiz-view";
 import { createClient } from "@/lib/client";
@@ -87,6 +88,8 @@ export function MissionContainer({ missionId }: { missionId: string }) {
           surveyQuestion={surveyQuestion}
         />
       );
+    case 5:
+      return <InviteView mission={mission} questions={questions} />;
     default:
       return <div>Tipo de misión no soportado</div>;
   }
