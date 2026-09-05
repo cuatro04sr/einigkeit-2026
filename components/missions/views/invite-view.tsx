@@ -37,6 +37,7 @@ export function InviteView({ mission, questions }: InviteViewProps) {
   const [copied, setCopied] = useState(false);
   const [acceptedCount, setAcceptedCount] = useState<number>(0);
   const [showResultModal, setShowResultModal] = useState(false);
+
   useEffect(() => {
     async function fetchOrGenerateCode() {
       if (!user || !question) return;
@@ -90,10 +91,12 @@ export function InviteView({ mission, questions }: InviteViewProps) {
     }
     fetchOrGenerateCode();
   }, [user, question, mission.id, supabase]);
+
   const inviteLink = useMemo(() => {
     const code = inviteCode || "TM1995";
     return `einigkeit2026.asodeca.co/invita/${code}`;
   }, [inviteCode]);
+
   const handleCopyCode = useCallback(() => {
     if (!inviteLink) return;
     navigator.clipboard.writeText(`https://${inviteLink}`);
@@ -102,6 +105,7 @@ export function InviteView({ mission, questions }: InviteViewProps) {
     setTimeout(() => setCopied(false), 3000);
     setShowResultModal(true);
   }, [inviteLink]);
+
   const handleShare = useCallback(async () => {
     if (navigator.share) {
       try {
@@ -118,6 +122,7 @@ export function InviteView({ mission, questions }: InviteViewProps) {
     }
     setShowResultModal(true);
   }, [inviteLink, handleCopyCode]);
+
   return (
     <>
       <div
@@ -161,26 +166,28 @@ export function InviteView({ mission, questions }: InviteViewProps) {
                 </h1>
                 <p className="text-sm text-slate-500">
                   <span className="font-light text-black">
-                    ¡Recluta a tu salón para Einigkeit 2026!
+                    ¡Recluta a tu salón para Einigkeit 2026! Invita a tus
+                    compañeros de cualquier parte del mundo:
                   </span>{" "}
-                  Invita a tus compañeros de cualquier parte del mundo: más
-                  jugadores significan un mejor reencuentro. ¡Comparte el juego
-                  ahora para que sumen entre todos más puntos!.
+                  más jugadores significan un mejor reencuentro. ¡Comparte el
+                  juego ahora para que sumen entre todos más puntos!.
                 </p>
               </div>
             </div>
-            <Card className="border border-slate-200/80 w-lg shadow-none rounded-md bg-white p-5">
+
+            {/* CORRECCIÓN APLICADA AQUÍ: w-full en lugar de w-lg, y flex-col que pasa a sm:flex-row */}
+            <Card className="border border-slate-200/85 w-full shadow-none rounded-md bg-white p-4 sm:p-5">
               <div className="flex flex-col gap-4">
                 <h3 className="text-sm font-bold text-slate-900">
                   Comparte tu enlace de invitación
                 </h3>
-                <div className="flex flex-row items-center gap-2 w-full">
-                  <div className="flex items-center w-full bg-white border border-slate-300 rounded-md px-4 py-3 shadow-sm">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
+                  <div className="flex items-center w-full bg-white border border-slate-300 rounded-md px-4 py-3 shadow-sm overflow-hidden">
                     <span className="text-xs font-medium text-slate-700 truncate">
                       {loadingCode ? "Generando..." : inviteLink}
                     </span>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex items-center justify-end gap-2 shrink-0">
                     <Button
                       onClick={handleCopyCode}
                       disabled={loadingCode}
@@ -213,6 +220,7 @@ export function InviteView({ mission, questions }: InviteViewProps) {
                 </div>
               </div>
             </Card>
+
             <div className="flex flex-col gap-3">
               <h2 className="text-sm font-bold text-black">
                 Tu progreso va así
@@ -276,8 +284,8 @@ export function InviteView({ mission, questions }: InviteViewProps) {
             }
             orientation="horizontal"
             className="!w-fit self-end justify-self-center
-                       [&>div:first-child]:!text-xs [&>div:first-child]:!max-w-[150px] [&>div:first-child]:!text-center
-                       [&>div:last-child]:!w-[380px] [&>div:last-child]:!h-[280px]"
+                        [&>div:first-child]:!text-xs [&>div:first-child]:!max-w-[150px] [&>div:first-child]:!text-center
+                        [&>div:last-child]:!w-[380px] [&>div:last-child]:!h-[280px]"
           />
         </div>
         <Card className="w-full bg-[#FFF9F2] border-slate-200/80 rounded-2xl shadow-none py-0">
