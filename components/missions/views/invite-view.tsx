@@ -161,9 +161,11 @@ export function InviteView({ mission, questions }: InviteViewProps) {
                 </h1>
                 <p className="text-sm text-slate-500">
                   <span className="font-light text-black">
-                    Comparte tu enlace con tu Abi.
+                    ¡Recluta a tu salón para Einigkeit 2026!
                   </span>{" "}
-                  Cada persona que se une, suma puntos y abre más el muro.
+                  Invita a tus compañeros de cualquier parte del mundo: más
+                  jugadores significan un mejor reencuentro. ¡Comparte el juego
+                  ahora para que sumen entre todos más puntos!.
                 </p>
               </div>
             </div>
