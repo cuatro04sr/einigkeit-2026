@@ -94,7 +94,7 @@ export function InviteView({ mission, questions }: InviteViewProps) {
 
   const inviteLink = useMemo(() => {
     const code = inviteCode || "TM1995";
-    return `einigkeit2026.asodeca.co/invita/${code}`;
+    return `einigkeit-2026.vercel.app/invita/${code}`;
   }, [inviteCode]);
 
   const handleCopyCode = useCallback(() => {
