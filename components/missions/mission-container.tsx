@@ -1,6 +1,7 @@
 "use client";
 
 import { CrosswordView } from "@/components/missions/views/crossword-view";
+import { HangmanView } from "@/components/missions/views/hangman-view";
 import { MemoryView } from "@/components/missions/views/memory-view";
 import { InviteView } from "@/components/missions/views/invite-view";
 import { PhotoView } from "@/components/missions/views/photo-view";
@@ -90,6 +91,14 @@ export function MissionContainer({ missionId }: { missionId: string }) {
       );
     case 5:
       return <InviteView mission={mission} questions={questions} />;
+    case 6:
+      return (
+        <HangmanView
+          mission={mission}
+          questions={quizQuestions}
+          surveyQuestion={surveyQuestion}
+        />
+      );
     default:
       return <div>Tipo de misión no soportado</div>;
   }

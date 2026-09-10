@@ -97,6 +97,15 @@ export interface QuizResultDialogProps {
   submitting?: boolean;
 }
 
+export interface HangmanResultDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onRetry: () => void;
+  isSuccess: boolean;
+  onContinue: () => void;
+  submitting?: boolean;
+}
+
 export interface MascotDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
