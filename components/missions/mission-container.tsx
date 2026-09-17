@@ -12,6 +12,7 @@ import { Mission, Question } from "@/types";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
+import { PuzzleView } from "./views/puzzle-view";
 
 const supabase = createClient();
 
@@ -94,6 +95,14 @@ export function MissionContainer({ missionId }: { missionId: string }) {
     case 6:
       return (
         <HangmanView
+          mission={mission}
+          questions={quizQuestions}
+          surveyQuestion={surveyQuestion}
+        />
+      );
+    case 7:
+      return (
+        <PuzzleView
           mission={mission}
           questions={quizQuestions}
           surveyQuestion={surveyQuestion}
