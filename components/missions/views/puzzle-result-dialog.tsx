@@ -24,7 +24,7 @@ export function PuzzleResultDialog({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   useEffect(() => {
     if (!audioRef.current)
-      audioRef.current = new Audio("/missions/m6/du-hast.mp3");
+      audioRef.current = new Audio("/missions/m7/rock-me-amadeus.mp3");
     if (open && isSuccess) {
       audioRef.current
         .play()
