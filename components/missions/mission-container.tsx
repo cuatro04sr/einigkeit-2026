@@ -1,5 +1,6 @@
 "use client";
 
+import { WordSearchView } from "@/components/missions/views/word-search-view";
 import { CrosswordView } from "@/components/missions/views/crossword-view";
 import { HangmanView } from "@/components/missions/views/hangman-view";
 import { MemoryView } from "@/components/missions/views/memory-view";
@@ -103,6 +104,14 @@ export function MissionContainer({ missionId }: { missionId: string }) {
     case 7:
       return (
         <PuzzleView
+          mission={mission}
+          questions={quizQuestions}
+          surveyQuestion={surveyQuestion}
+        />
+      );
+    case 8:
+      return (
+        <WordSearchView
           mission={mission}
           questions={quizQuestions}
           surveyQuestion={surveyQuestion}

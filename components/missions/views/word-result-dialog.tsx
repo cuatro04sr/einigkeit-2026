@@ -1,0 +1,111 @@
+"use client";
+
+import { MascotDialog } from "@/components/shared/mascot-dialog";
+import { Button } from "@/components/ui/button";
+
+import { RotateCcw, ArrowRight, Loader2 } from "lucide-react";
+import { useEffect, useRef } from "react";
+
+interface WordResultDialogProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  isSuccess: boolean;
+  onContinue?: () => void;
+  submitting?: boolean;
+}
+
+export function WordResultDialog({
+  open,
+  onOpenChange,
+  isSuccess,
+  onContinue,
+  submitting = false,
+}: WordResultDialogProps) {
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  useEffect(() => {
+    if (!audioRef.current)
+      audioRef.current = new Audio(
+        "/missions/m4/another-brick-on-the-wall.mp3",
+      );
+    if (open && isSuccess) {
+      audioRef.current
+        .play()
+        .catch((e) => console.log("Audio autoplay prevented", e));
+    } else {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+        audioRef.current.currentTime = 0;
+      }
+    };
+  }, [open, isSuccess]);
+  const title = isSuccess
+    ? "¡Encontraste todas las palabras!"
+    : "¡Se acabó el tiempo!";
+  const imageSrc = isSuccess
+    ? "/mascot/otto-crossword-happy.png"
+    : "/mascot/otto-sad.png";
+  return (
+    <MascotDialog
+      open={open}
+      onOpenChange={onOpenChange}
+      title={title}
+      imageSrc={imageSrc}
+      imageAlt={title}
+    >
+      <div className="flex flex-col h-full justify-center gap-3">
+        <h2 className="text-xl sm:text-2xl font-extrabold text-red-600 tracking-tight leading-none">
+          {title}
+        </h2>
+        <p className="text-sm sm:text-md text-slate-800 font-medium leading-snug">
+          {isSuccess ? (
+            <>
+              Las tradiciones y personas que hicieron parte del colegio dejan
+              huellas que perduran en el tiempo
+              <br />
+              <br />
+              <span className="font-bold text-slate-900 block">
+                ¿Qué palabra agregarías a esta sopa de letras para representar
+                tu paso por el colegio?
+              </span>
+            </>
+          ) : (
+            <>
+              No te preocupes, las palabras siguen ahí. ¡Inténtalo de nuevo y
+              demuestra tu agilidad!
+            </>
+          )}
+        </p>
+        <div className="flex flex-col gap-2 mt-3 w-full max-w-sm">
+          {isSuccess && onContinue && (
+            <Button
+              size="lg"
+              onClick={onContinue}
+              disabled={submitting}
+              className="h-12 w-full bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl transition-all shadow-md"
+            >
+              {submitting ? (
+                <Loader2 className="h-5 w-5 animate-spin" />
+              ) : (
+                <>
+                  Compartir respuesta <ArrowRight className="ml-2 h-4 w-4" />
+                </>
+              )}
+            </Button>
+          )}
+          {!isSuccess && (
+            <Button
+              size="lg"
+              className="h-12 w-full bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition-all shadow-md"
+            >
+              Intentar de nuevo <RotateCcw className="ml-2 h-4 w-4" />
+            </Button>
+          )}
+        </div>
+      </div>
+    </MascotDialog>
+  );
+}
