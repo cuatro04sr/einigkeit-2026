@@ -499,7 +499,7 @@ export function WordSearchView({
                 </div>
               </div>
 
-              <div className="xl:col-span-2 flex flex-col self-start items-center justify-center gap-3 py-4">
+              <div className="xl:col-span-2 flex flex-col self-start items-center justify-center bg-white rounded-2xl shadow-sm gap-3 py-4">
                 {GRID_CONFIG.words.map((w) => {
                   const isWordFound = foundWordIds[w.id];
                   return (
@@ -517,7 +517,7 @@ export function WordSearchView({
 
               <div className="xl:col-span-3 self-end relative hidden lg:flex items-end justify-center h-100">
                 <Image
-                  src="/mascot/otto-thinking.png"
+                  src="/mascot/otto-word.png"
                   alt="Ilustración de la misión"
                   fill
                   className="object-contain object-bottom"

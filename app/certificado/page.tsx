@@ -114,10 +114,19 @@ export default function CertificadoPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 items-center">
         {/* Columna izquierda: texto, stats, acciones, mascota */}
         <div className="space-y-2 order-2 lg:order-1">
-          <Badge className="h-6 bg-amber-100 text-amber-700 border border-amber-200 rounded-full px-3 py-1 text-xs font-bold w-fit">
-            <span className="text-red-500">Caso de uso 09</span>{" "}
-            <span className="text-gray-800 text-light">• Misión cumplida</span>
-          </Badge>
+          <div className="flex flex-row gap-2">
+            <Badge className="h-6 bg-amber-100 text-amber-700 border border-amber-200 rounded-full px-3 py-1 text-xs font-bold w-fit">
+              <span className="text-red-500">Caso de uso 09</span>{" "}
+              <span className="text-gray-800 text-light">
+                • Misión cumplida
+              </span>
+            </Badge>
+            <a href="/asistencia">
+              <Badge className="h-6 bg-red-500 border border-red-500 rounded-full px-3 py-1 text-xs font-bold w-fit">
+                <span className="text-white">Siguiente</span>{" "}
+              </Badge>
+            </a>
+          </div>
 
           <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-950 leading-tight">
             ¡Haz completado
