@@ -24,9 +24,7 @@ export function WordResultDialog({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   useEffect(() => {
     if (!audioRef.current)
-      audioRef.current = new Audio(
-        "/missions/m4/another-brick-on-the-wall.mp3",
-      );
+      audioRef.current = new Audio("/missions/m8/scorpions-wind-of-change.mp3");
     if (open && isSuccess) {
       audioRef.current
         .play()

@@ -136,13 +136,13 @@ export default function AsistenciaPage() {
             </p>
             <p className="text-sm text-slate-600">
               <span className="font-semibold text-slate-800">
-                2:30 p.m. – 3:30 p.m.:
+                2:00 p.m. – 3:30 p.m.:
               </span>{" "}
-              Quiquenios.
+              Quinquenios.
             </p>
             <p className="text-sm text-slate-600">
               <span className="font-semibold text-slate-800">
-                3:30 p.m. – 4:30 p.m.:
+                4:00 p.m. – 4:30 p.m.:
               </span>{" "}
               Cierre del juego interactivo.
             </p>
