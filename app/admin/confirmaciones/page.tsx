@@ -92,17 +92,23 @@ export default function ConfirmacionesPage() {
 
         if (rsvpsRes.error) throw rsvpsRes.error;
         if (profilesRes.error) throw profilesRes.error;
-        const mapped: RsvpRow[] = rsvpsRes.data.map((row) => ({
-          id: row.id,
-          user_id: row.user_id,
-          full_name: row.full_name,
-          abi: row.abi,
-          email: row.email,
-          phone: row.phone,
-          attending: row.attending,
-          city: row.profiles.city ?? null,
-          country: row.profiles.country ?? null,
-        }));
+        const mapped: RsvpRow[] = rsvpsRes.data.map((row) => {
+          const profileData = row.profiles as {
+            city?: string | null;
+            country?: string | null;
+          } | null;
+          return {
+            id: row.id,
+            user_id: row.user_id,
+            full_name: row.full_name,
+            abi: row.abi,
+            email: row.email,
+            phone: row.phone,
+            attending: row.attending,
+            city: profileData?.city ?? null,
+            country: profileData?.country ?? null,
+          };
+        });
         setRsvps(mapped);
         setProfilesCount(profilesRes.count ?? 0);
       } catch (error: unknown) {
